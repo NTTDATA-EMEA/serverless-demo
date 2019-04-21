@@ -13,7 +13,7 @@ type LocalStateStorer struct {
 	Filename string
 }
 
-// NewLocalStateStorer returns a StateStorer implementation for AWS
+// NewLocalStateStorer returns a StateStorer implementation
 func NewLocalStateStorer(address, filename string) StateStorer {
 	return &LocalStateStorer{
 		Address:  address,

@@ -1,24 +1,6 @@
-# Serverless by Example
+# Poll Tweets
 
-## Solution Overview
-
-## AWS Keys
-### AWS Console
-Login: https://680260899871.signin.aws.amazon.com/console
-User: oliver.koeth@nttdata.com.developer
-Password: See LastPass
-
-### AWS APIs
-See LastPass => AWS serverless-demo
-```
-export AWS_ACCESS_KEY_ID=xxx
-export AWS_SECRET_ACCESS_KEY=xxx
-```
-
-To manage credentials with serverless 
-```
-sls config credentials --provider aws --key xxx --secret xxx --profile serverless-demo-dev
-``` 
+## Function Overview
 
 ### Twitter APIs
 See LastPass => Twitter okoeth-demo-consumer / Twitter okoeth-demo-access
@@ -75,11 +57,3 @@ source setenv-twitter.sh
 aws s3 cp state.json s3://dev-serverless-demo-twitter-state/
 ```
 
-## References
-[Serverless - AWS Documentation](https://serverless.com/framework/docs/providers/aws/)
-[Serverless Lambda Go Events](https://serverless.com/blog/framework-example-golang-lambda-support/)
-[AWS Lambda Go Events](https://github.com/aws/aws-lambda-go/tree/master/events)
-[Twitter Event Source](https://github.com/awslabs/aws-serverless-twitter-event-source)
-[IAM Configuration](https://gist.github.com/ServerlessBot/7618156b8671840a539f405dea2704c8)
-[Language Analysis](https://github.com/chrisport/go-lang-detector)
-[Sentiment Analysis](https://github.com/cdipaolo/sentiment)

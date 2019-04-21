@@ -11,11 +11,8 @@
 #
 # Happy Coding!
 
-service: poll-tweet # NOTE: update this with your service name
+service: poll-tweet 
 
-# You can pin your service to only deploy with a specific Serverless version
-# Check out our docs for more details
-# frameworkVersion: "=X.X.X"
 frameworkVersion: ">=1.28.0 <2.0.0"
 
 provider:
@@ -32,26 +29,6 @@ provider:
         - s3:PutObject
       Resource: "arn:aws:s3:::${self:provider.stage}-serverless-demo-twitter-state/*"
 
-# you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:PutObject"
-#      Resource:
-#        Fn::Join:
-#          - ""
-#          - - "arn:aws:s3:::"
-#            - "Ref" : "ServerlessDeploymentBucket"
-#            - "/*"
-
-# you can define service wide environment variables here
-#  environment:
-#    variable1: value1
-
 package:
  exclude:
    - ./**
@@ -59,12 +36,6 @@ package:
    - ./bin/**
 
 functions:
-  echo:
-    handler: bin/echo
-    events:
-      - http:
-          path: echo
-          method: post
   poll:
     handler: bin/poll
     environment:
@@ -75,9 +46,6 @@ functions:
       TWITTER_STATE_BUCKET: ${self:provider.stage}-serverless-demo-twitter-state
     events:
       - schedule: rate(1 minute)
-
-custom:
-  twitterStateBucketName: ""
 
 resources:
   Resources:

@@ -2,7 +2,7 @@
 
 
 [[projects]]
-  digest = "1:27162030e6e116b8cfd8e5df85735fd3c79ab8ce67489e5be6e6fc258d52441c"
+  digest = "1:4d8e453e6be1635dfecff68d9d98f02cf567ace18088c1ac0eb3556843ac42b6"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -32,11 +32,14 @@
     "private/protocol",
     "private/protocol/eventstream",
     "private/protocol/eventstream/eventstreamapi",
+    "private/protocol/json/jsonutil",
+    "private/protocol/jsonrpc",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
+    "service/kinesis",
     "service/s3",
     "service/s3/s3iface",
     "service/s3/s3manager",
@@ -59,6 +62,7 @@
   input-imports = [
     "github.com/aws/aws-sdk-go/aws",
     "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/kinesis",
     "github.com/aws/aws-sdk-go/service/s3",
     "github.com/aws/aws-sdk-go/service/s3/s3manager",
   ]

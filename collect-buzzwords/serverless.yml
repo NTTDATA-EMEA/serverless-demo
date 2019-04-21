@@ -1,0 +1,55 @@
+# Welcome to Serverless!
+#
+# This file is the main config file for your service.
+# It's very minimal at this point and uses default values.
+# You can always add more config options for more control.
+# We've included some commented out config examples here.
+# Just uncomment any of them to get that config option.
+#
+# For full config options, check the docs:
+#    docs.serverless.com
+#
+# Happy Coding!
+
+service: collect-buzzwords 
+
+frameworkVersion: ">=1.28.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: go1.x
+  stage: ${env:SERVERLESS_STAGE}
+  region: ${env:AWS_REGION}
+  tags:
+    project: serverless-demo
+    owner: oliver.koeth@nttdata.com
+
+package:
+ exclude:
+   - ./**
+ include:
+   - ./bin/**
+
+functions:
+  collect:
+    handler: bin/collect
+    events:
+      - stream:
+          type: kinesis
+          arn: ${env:AWS_EVENT_STREAM}
+          batchSize: 100
+          startingPosition: TRIM_HORIZON
+          enabled: true
+
+resources:
+  Resources:
+    EventStream:
+      Type: AWS::Kinesis::Stream
+      Properties: 
+        Name: events
+        ShardCount: 2
+        Tags: 
+          - Key: project
+            Value: serverless-demo
+          - Key: owner
+            Value: oliver.koeth@nttdata.com
