@@ -2,7 +2,6 @@ package services
 
 import (
 	"encoding/json"
-	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -51,7 +50,6 @@ func (as *AwsStateStorer) SetState(state State) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Serialised testState: %s\n", json)
 	uploader := s3manager.NewUploader(session.New())
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(as.Address),

@@ -1,36 +1,30 @@
 package services
 
 import (
+	"os"
 	"testing"
 	"time"
 )
 
 func getEventPublishers() []EventPublisher {
 	var eventPublishers []EventPublisher
-	//eventPublishers =
-	//	append(eventPublishers, NewAwsStateStorer(os.Getenv("TWITTER_STATE_BUCKET"), "testState.json"))
+	if os.Getenv("AWS_INCLUDE_TESTS") == "1" {
+		eventPublishers =
+			append(eventPublishers, NewAwsEventPublisher(os.Getenv("AWS_EVENT_STREAM_NAME")))
+	}
 	eventPublishers =
-		append(eventPublishers, NewLocalEventPublisher("test-stream"))
+		append(eventPublishers, NewLocalEventPublisher(os.Getenv("AWS_EVENT_STREAM_NAME")))
 	return eventPublishers
 }
-
-/*
-func getTestState() State {
-	testState := make(State)
-	testState["#cloud"] = 0
-	testState["#ai"] = 0
-	testState["#iot"] = 0
-	return testState
-}
-*/
 
 func getTestEvent() *Event {
 	return &Event{
 		ID:        "TEST-ID",
+		Shard:     "SHARD1",
 		Timestamp: time.Now(),
 		Source:    "TEST",
 		EventType: "TEST-EVENT",
-		Payload:   getTestState(),
+		Payload:   []string{"Hello", "World"},
 	}
 }
 

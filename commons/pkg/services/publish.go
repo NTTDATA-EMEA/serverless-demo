@@ -5,6 +5,7 @@ import "time"
 // Event is the envelope of events used in the serverless-demo
 type Event struct {
 	ID        string
+	Shard     string
 	Timestamp time.Time
 	Source    string
 	EventType string

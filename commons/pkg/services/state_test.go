@@ -7,8 +7,10 @@ import (
 
 func getStateStorers() []StateStorer {
 	var stateStorer []StateStorer
-	stateStorer =
-		append(stateStorer, NewAwsStateStorer(os.Getenv("TWITTER_STATE_BUCKET"), "testState.json"))
+	if os.Getenv("AWS_INCLUDE_TESTS") == "1" {
+		stateStorer =
+			append(stateStorer, NewAwsStateStorer(os.Getenv("TWITTER_STATE_BUCKET"), "testState.json"))
+	}
 	stateStorer =
 		append(stateStorer, NewLocalStateStorer("/tmp", "testState.json"))
 	return stateStorer

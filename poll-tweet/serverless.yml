@@ -38,67 +38,13 @@ package:
 functions:
   poll:
     handler: bin/poll
+    memorySize: 128
     environment:
       TWITTER_ACCESS_TOKEN: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/access-token~true}
       TWITTER_ACCESS_SECRET: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/access-secret~true}
       TWITTER_CONSUMER_KEY: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/consumer-key~true}
       TWITTER_CONSUMER_SECRET: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/consumer-secret~true}
+      TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
       TWITTER_STATE_BUCKET: ${self:provider.stage}-serverless-demo-twitter-state
     events:
-      - schedule: rate(1 minute)
-
-resources:
-  Resources:
-    TwitterStateBucket:
-      Type: AWS::S3::Bucket
-      Properties:
-        BucketName: ${self:provider.stage}-serverless-demo-twitter-state
-        Tags: 
-          - Key: project
-            Value: serverless-demo
-          - Key: owner
-            Value: oliver.koeth@nttdata.com
-    TwitterAccessToken:
-      Type: "AWS::SecretsManager::Secret"
-      Properties:
-        Name: serverless-demo/twitter/access-token
-        Description: Access Token for serverless-demo Twitter app
-        SecretString: ${env:TWITTER_ACCESS_TOKEN}
-        Tags: 
-          - Key: project
-            Value: serverless-demo
-          - Key: owner
-            Value: oliver.koeth@nttdata.com
-    TwitterAccessSecret:
-      Type: "AWS::SecretsManager::Secret"
-      Properties:
-        Name: serverless-demo/twitter/access-secret
-        Description: Access Secret for serverless-demo Twitter app
-        SecretString: ${env:TWITTER_ACCESS_SECRET}
-        Tags: 
-          - Key: project
-            Value: serverless-demo
-          - Key: owner
-            Value: oliver.koeth@nttdata.com
-    TwitterConsumerKey:
-      Type: "AWS::SecretsManager::Secret"
-      Properties:
-        Name: serverless-demo/twitter/consumer-key
-        Description: Consumer Key for serverless-demo Twitter app
-        SecretString: ${env:TWITTER_CONSUMER_KEY}
-        Tags: 
-          - Key: project
-            Value: serverless-demo
-          - Key: owner
-            Value: oliver.koeth@nttdata.com
-    TwitterConsumerSecret:
-      Type: "AWS::SecretsManager::Secret"
-      Properties:
-        Name: serverless-demo/twitter/consumer-secret
-        Description: Consumer Secret for serverless-demo Twitter app
-        SecretString: ${env:TWITTER_CONSUMER_SECRET}
-        Tags: 
-          - Key: project
-            Value: serverless-demo
-          - Key: owner
-            Value: oliver.koeth@nttdata.com
+      - schedule: rate(2 minutes)

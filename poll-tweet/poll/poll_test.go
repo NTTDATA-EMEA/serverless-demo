@@ -1,6 +1,7 @@
 package main
 
 import (
+	"os"
 	"testing"
 
 	"github.com/okoeth/serverless-demo/commons/pkg/services"
@@ -32,10 +33,20 @@ func TestPollTweets(t *testing.T) {
 }
 
 func TestPollAllTweets(t *testing.T) {
-	// s := NewAwsStateStorer(o.Getenv("TWITTER_STATE_BUCKET"), "TwitterState.json")
-	s := services.NewLocalStateStorer("/tmp", "TwitterState.json")
+	var s services.StateStorer
+	if os.Getenv("AWS_INCLUDE_TESTS") == "1" {
+		s = services.NewAwsStateStorer(os.Getenv("TWITTER_STATE_BUCKET"), os.Getenv("TWITTER_STATE_FILE"))
+	} else {
+		s = services.NewLocalStateStorer("/tmp", os.Getenv("TWITTER_STATE_FILE"))
+	}
 	_, err := PollAllTweets(s)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+}
+
+func TestPollPublishTweets(t *testing.T) {
+}
+
+func TestPollPublishAllTweets(t *testing.T) {
 }

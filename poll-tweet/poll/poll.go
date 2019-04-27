@@ -76,3 +76,8 @@ func PollTweets(query string, sinceID int64) ([]twitter.Tweet, error) {
 	}
 	return search.Statuses, nil
 }
+
+// PublishTweets sends tweets via event publisher
+func PublishTweets(ep services.EventPublisher, tweets []twitter.Tweet) error {
+	return nil
+}

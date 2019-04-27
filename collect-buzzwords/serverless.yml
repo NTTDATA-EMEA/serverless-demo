@@ -36,7 +36,7 @@ functions:
     events:
       - stream:
           type: kinesis
-          arn: ${env:AWS_EVENT_STREAM}
+          arn: ${env:AWS_EVENT_STREAM_ARN}
           batchSize: 100
           startingPosition: TRIM_HORIZON
           enabled: true
@@ -46,7 +46,7 @@ resources:
     EventStream:
       Type: AWS::Kinesis::Stream
       Properties: 
-        Name: events
+        Name: ${env:AWS_EVENT_STREAM_NAME}
         ShardCount: 2
         Tags: 
           - Key: project
