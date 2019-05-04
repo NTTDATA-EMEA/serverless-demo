@@ -14,6 +14,6 @@ type Event struct {
 
 // EventPublisher is technology agnostic interface to publish events
 type EventPublisher interface {
-	PublishEvent(event *Event) error
+	PublishEvent(event Event) error
 	PublishEvents(events []Event) error
 }

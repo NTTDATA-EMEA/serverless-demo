@@ -21,31 +21,30 @@ func NewAwsEventPublisher(streamName string) EventPublisher {
 }
 
 // PublishEvent is a dummy implementation just logging the event
-func (ep *AwsEventPublisher) PublishEvent(event *Event) error {
-	json, err := json.Marshal(event)
-	if err != nil {
-		return err
-	}
-	svc := kinesis.New(session.New())
-	if _, err := svc.PutRecords(&kinesis.PutRecordsInput{
-		Records: []*kinesis.PutRecordsRequestEntry{
-			{
-				Data:         json,
-				PartitionKey: aws.String(event.Shard),
-			},
-		},
-		StreamName: aws.String(ep.StreamName),
-	}); err != nil {
-		return err
-	}
-
+func (ep *AwsEventPublisher) PublishEvent(event Event) error {
+	ep.PublishEvents([]Event{event})
 	return nil
 }
 
 // PublishEvents is a dummy implementation just logging the events
 func (ep *AwsEventPublisher) PublishEvents(events []Event) error {
-	for _, event := range events {
-		ep.PublishEvent(&event)
+	var records []*kinesis.PutRecordsRequestEntry
+	for i := range events {
+		json, err := json.Marshal(events[i])
+		if err != nil {
+			return err
+		}
+		records = append(records, &kinesis.PutRecordsRequestEntry{
+			Data:         json,
+			PartitionKey: aws.String(events[i].Shard),
+		})
+	}
+	svc := kinesis.New(session.New())
+	if _, err := svc.PutRecords(&kinesis.PutRecordsInput{
+		Records:    records,
+		StreamName: aws.String(ep.StreamName),
+	}); err != nil {
+		return err
 	}
 	return nil
 }

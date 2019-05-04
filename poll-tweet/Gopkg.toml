@@ -37,9 +37,9 @@
   name = "github.com/dghubble/oauth1"
   version = "0.5.0"
 
-[[constraint]]
-  branch = "master"
-  name = "github.com/okoeth/serverless-demo"
+# [[constraint]]
+#   branch = "master"
+#   name = "github.com/okoeth/serverless-demo"
 
 [prune]
   go-tests = true

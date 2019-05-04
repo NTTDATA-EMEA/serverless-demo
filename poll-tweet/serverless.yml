@@ -27,7 +27,17 @@ provider:
     - Effect: Allow
       Action:
         - s3:PutObject
+        - s3:GetObject
       Resource: "arn:aws:s3:::${self:provider.stage}-serverless-demo-twitter-state/*"
+    - Effect: Allow
+      Action:
+        - kinesis:DescribeStream
+        - kinesis:DescribeSummary
+        - kinesis:GetRecords
+        - kinesis:PutRecord
+        - kinesis:PutRecords
+        - kinesis:GetShardIterator
+      Resource: ${env:AWS_EVENT_STREAM_ARN}
 
 package:
  exclude:
@@ -44,7 +54,8 @@ functions:
       TWITTER_ACCESS_SECRET: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/access-secret~true}
       TWITTER_CONSUMER_KEY: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/consumer-key~true}
       TWITTER_CONSUMER_SECRET: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/consumer-secret~true}
-      TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
+      AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME}
       TWITTER_STATE_BUCKET: ${self:provider.stage}-serverless-demo-twitter-state
+      TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
     events:
-      - schedule: rate(2 minutes)
+      - schedule: rate(5 minutes)

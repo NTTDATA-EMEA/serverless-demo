@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -15,20 +16,44 @@ type Response struct {
 	Ok      bool   `json:"ok"`
 }
 
+func makeError(requestID string, err error) (Response, error) {
+	return Response{
+		Message: fmt.Sprintf("Processed request: %s with error %s", requestID, err.Error()),
+		Ok:      false,
+	}, err
+}
+
 // Handler receives and processes the request from the API gateway
 func Handler(request events.CloudWatchEvent) (Response, error) {
 	fmt.Printf("Received body: %s\n", request.ID)
+	stateBucket := os.Getenv("TWITTER_STATE_BUCKET")
+	if stateBucket == "" {
+		return makeError(request.ID, errors.New(
+			"Variable TWITTER_STATE_BUCKET not defined. Try export TWITTER_STATE_BUCKET=<bucket-name>"))
 
-	s := services.NewAwsStateStorer(os.Getenv("TWITTER_STATE_BUCKET"), os.Getenv("TWITTER_STATE_FILE"))
-	_, err := PollAllTweets(s)
-	if err != nil {
-		return Response{
-			Message: fmt.Sprintf("Processed request: %s with error %s", request.ID, err.Error()),
-			Ok:      false,
-		}, err
 	}
-	// PublishAllTweets(tweets)
-
+	stateFile := os.Getenv("TWITTER_STATE_FILE")
+	if stateFile == "" {
+		return makeError(request.ID, errors.New(
+			"Variable TWITTER_STATE_FILE not defined. Try export TWITTER_STATE_FILE=<file-name>"))
+	}
+	s := services.NewAwsStateStorer(stateBucket, stateFile)
+	tweets, err := PollAllTweets(s)
+	if err != nil {
+		return makeError(request.ID, err)
+	}
+	fmt.Printf("Publishing %d new tweets\n", len(tweets))
+	if len(tweets) > 0 {
+		streamName := os.Getenv("AWS_EVENT_STREAM_NAME")
+		if streamName == "" {
+			return makeError(request.ID, errors.New(
+				"Variable AWS_EVENT_STREAM_NAME not defined. Try export AWS_EVENT_STREAM_NAME=<stream-name>"))
+		}
+		ep := services.NewAwsEventPublisher(streamName)
+		if err := PublishTweets(ep, tweets); err != nil {
+			return makeError(request.ID, err)
+		}
+	}
 	return Response{
 		Message: fmt.Sprintf("Processed request: %s", request.ID),
 		Ok:      true,

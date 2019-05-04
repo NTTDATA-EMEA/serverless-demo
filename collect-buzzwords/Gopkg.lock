@@ -15,12 +15,112 @@
   revision = "08d251dc58f204411d79012fd6f1beefb7107fea"
   version = "v1.10.0"
 
+[[projects]]
+  digest = "1:af7f26259317885e69c29030c42842050b6672d9dd0db78070a067044db19c28"
+  name = "github.com/aws/aws-sdk-go"
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/processcreds",
+    "aws/credentials/stscreds",
+    "aws/csm",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/ini",
+    "internal/s3err",
+    "internal/sdkio",
+    "internal/sdkrand",
+    "internal/sdkuri",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/eventstream",
+    "private/protocol/eventstream/eventstreamapi",
+    "private/protocol/json/jsonutil",
+    "private/protocol/jsonrpc",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/restxml",
+    "private/protocol/xml/xmlutil",
+    "service/kinesis",
+    "service/s3",
+    "service/s3/s3iface",
+    "service/s3/s3manager",
+    "service/sts",
+  ]
+  pruneopts = ""
+  revision = "86dc5d0ebe9f30ac9e939da21c240a98519343f2"
+  version = "v1.19.24"
+
+[[projects]]
+  digest = "1:59df7ab87ddca233bb586ff32c6feba12bf787260f6694dc45ceecea9d3e1a7e"
+  name = "github.com/cenkalti/backoff"
+  packages = ["."]
+  pruneopts = ""
+  revision = "1e4cf3da559842a91afcb6ea6141451e6c30c618"
+  version = "v2.1.1"
+
+[[projects]]
+  branch = "master"
+  digest = "1:eaaaf4a83d6979663a47d90dffdc8db351fd952f7d30eef01d4469d523324756"
+  name = "github.com/dghubble/go-twitter"
+  packages = ["twitter"]
+  pruneopts = ""
+  revision = "0022a70e9bee80163be82fdd74ac1d92bdebaf57"
+
+[[projects]]
+  digest = "1:fbf696b8af25bb4a791792b90cab2cfea212fac0ac0307ef72c298c5ebc1638b"
+  name = "github.com/dghubble/sling"
+  packages = ["."]
+  pruneopts = ""
+  revision = "e2624bf29a7de45ab0802b09aea94ca0a7815c5f"
+  version = "v1.2.0"
+
+[[projects]]
+  digest = "1:cea4aa2038169ee558bf507d5ea02c94ca85bcca28a4c7bb99fd59b31e43a686"
+  name = "github.com/google/go-querystring"
+  packages = ["query"]
+  pruneopts = ""
+  revision = "44c6ddd0a2342c386950e880b658017258da92fc"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:13fe471d0ed891e8544eddfeeb0471fd3c9f2015609a1c000aefdedf52a19d40"
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  pruneopts = ""
+  revision = "c2b33e84"
+
+[[projects]]
+  branch = "master"
+  digest = "1:1bcd3baedc8d0a05059aedb3a9b0a7319548b0e1fd46f8dcb90980c0d4895a9a"
+  name = "github.com/okoeth/serverless-demo"
+  packages = ["commons/pkg/services"]
+  pruneopts = ""
+  revision = "1bf1a58edb64ffdfc4c2772cec62d890d66d399e"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/aws/aws-lambda-go/events",
     "github.com/aws/aws-lambda-go/lambda",
+    "github.com/aws/aws-sdk-go/aws",
+    "github.com/aws/aws-sdk-go/aws/session",
+    "github.com/aws/aws-sdk-go/service/kinesis",
+    "github.com/dghubble/go-twitter/twitter",
+    "github.com/okoeth/serverless-demo/commons/pkg/services",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

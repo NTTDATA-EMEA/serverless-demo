@@ -1,4 +1,7 @@
-.PHONY: build test clean
+.PHONY: init-events build test clean
+
+init-events:
+	aws kinesis create-stream --stream-name ${AWS_EVENT_STREAM_NAME} --shard-count 1
 
 build:
 	dep ensure -v
@@ -9,3 +12,6 @@ test:
 
 clean:
 	rm -rf ./vendor Gopkg.lock
+
+clean-events:
+	aws kinesis delete-stream --stream-name ${AWS_EVENT_STREAM_NAME}

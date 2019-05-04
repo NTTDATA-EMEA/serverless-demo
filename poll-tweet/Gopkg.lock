@@ -16,7 +16,7 @@
   version = "v1.10.0"
 
 [[projects]]
-  digest = "1:27162030e6e116b8cfd8e5df85735fd3c79ab8ce67489e5be6e6fc258d52441c"
+  digest = "1:8f8d65914d5fb07c68f2981db554ea212497050cf6837af4a30a2d9508835c8c"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -46,19 +46,22 @@
     "private/protocol",
     "private/protocol/eventstream",
     "private/protocol/eventstream/eventstreamapi",
+    "private/protocol/json/jsonutil",
+    "private/protocol/jsonrpc",
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
+    "service/kinesis",
     "service/s3",
     "service/s3/s3iface",
     "service/s3/s3manager",
     "service/sts",
   ]
   pruneopts = "UT"
-  revision = "56c1def75689cceec1fa6f14c2eedb4b798827f9"
-  version = "v1.19.11"
+  revision = "7e9cd5af6d09680b0f9b3d983432e880425d42e7"
+  version = "v1.19.19"
 
 [[projects]]
   digest = "1:166438587ed45ac211dab8a3ecebf4fa0c186d0db63430fb9127bbc2e5fcdc67"
@@ -106,14 +109,6 @@
   packages = ["."]
   pruneopts = "UT"
   revision = "c2b33e84"
-
-[[projects]]
-  branch = "master"
-  digest = "1:4564e2e1e85e1c36c512433d97bd2e8ad604eda530d6d02cd87d2f6a32b2e61c"
-  name = "github.com/okoeth/serverless-demo"
-  packages = ["commons/pkg/services"]
-  pruneopts = "UT"
-  revision = "c0ea6533ea0bcd708fb4eab81b9d49daf3ddb6a4"
 
 [solve-meta]
   analyzer-name = "dep"

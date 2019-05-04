@@ -17,8 +17,8 @@ func getEventPublishers() []EventPublisher {
 	return eventPublishers
 }
 
-func getTestEvent() *Event {
-	return &Event{
+func getTestEvent() Event {
+	return Event{
 		ID:        "TEST-ID",
 		Shard:     "SHARD1",
 		Timestamp: time.Now(),

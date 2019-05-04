@@ -3,6 +3,7 @@ package main
 import (
 	"errors"
 	"os"
+	"time"
 
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
@@ -12,6 +13,9 @@ import (
 
 // SearchResultCount controls the batch size of the search results
 var SearchResultCount = 100
+
+// TwitterTimeLayout is the format Twitter uses for CreatedAt
+var TwitterTimeLayout = "Mon Jan 2 15:04:05 -0700 2006"
 
 func findMaxSinceID(tweets []twitter.Tweet, prevSinceID int64) int64 {
 	maxSinceID := prevSinceID
@@ -74,10 +78,31 @@ func PollTweets(query string, sinceID int64) ([]twitter.Tweet, error) {
 	if err != nil {
 		return nil, err
 	}
+	for i := range search.Statuses {
+		search.Statuses[i].Source = query
+	}
 	return search.Statuses, nil
 }
 
 // PublishTweets sends tweets via event publisher
 func PublishTweets(ep services.EventPublisher, tweets []twitter.Tweet) error {
+	var events []services.Event
+	for _, tweet := range tweets {
+		tm, err := time.Parse(TwitterTimeLayout, tweet.CreatedAt)
+		if err != nil {
+			return err
+		}
+		events = append(events, services.Event{
+			ID:        string(tweet.ID),
+			Shard:     tweet.Source,
+			Timestamp: tm,
+			Source:    "Poll-Tweet",
+			EventType: "Tweet",
+			Payload:   tweet,
+		})
+	}
+	if err := ep.PublishEvents(events); err != nil {
+		return err
+	}
 	return nil
 }

@@ -23,6 +23,14 @@ provider:
   tags:
     project: serverless-demo
     owner: oliver.koeth@nttdata.com
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - kinesis:DescribeStream
+        - kinesis:DescribeSummary
+        - kinesis:GetRecords
+        - kinesis:GetShardIterator
+      Resource: ${env:AWS_EVENT_STREAM_ARN}
 
 package:
  exclude:
@@ -37,19 +45,6 @@ functions:
       - stream:
           type: kinesis
           arn: ${env:AWS_EVENT_STREAM_ARN}
-          batchSize: 100
+          batchSize: 10
           startingPosition: TRIM_HORIZON
           enabled: true
-
-resources:
-  Resources:
-    EventStream:
-      Type: AWS::Kinesis::Stream
-      Properties: 
-        Name: ${env:AWS_EVENT_STREAM_NAME}
-        ShardCount: 2
-        Tags: 
-          - Key: project
-            Value: serverless-demo
-          - Key: owner
-            Value: oliver.koeth@nttdata.com

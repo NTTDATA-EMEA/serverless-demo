@@ -4,6 +4,7 @@ buzzwords out of an event queue and stores buzzwords statistics in
 a database.
 
 ## Kinesis CLI Cheat Sheet
-```
+
+```(sh)
 aws kinesis describe-stream --stream-name events
 ```

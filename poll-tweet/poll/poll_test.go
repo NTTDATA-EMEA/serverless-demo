@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"testing"
+	"time"
 
 	"github.com/okoeth/serverless-demo/commons/pkg/services"
 )
@@ -26,10 +27,19 @@ func TestFindMaxSinceID(t *testing.T) {
 }
 
 func TestPollTweets(t *testing.T) {
-	_, err := PollTweets("#cloud", 0)
+	tweets, err := PollTweets("#cloud", 0)
 	if err != nil {
 		t.Errorf(err.Error())
 	}
+	t.Logf("Tweets: %+v", tweets)
+}
+
+func TestPollTimeFormat(t *testing.T) {
+	tm, err := time.Parse(TwitterTimeLayout, "Thu Apr 25 00:56:44 +0000 2019")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	t.Logf("Parse result is %+v", tm)
 }
 
 func TestPollAllTweets(t *testing.T) {
@@ -45,8 +55,21 @@ func TestPollAllTweets(t *testing.T) {
 	}
 }
 
-func TestPollPublishTweets(t *testing.T) {
-}
-
-func TestPollPublishAllTweets(t *testing.T) {
+func TestPublishTweets(t *testing.T) {
+	tweets, err := PollTweets("#cloud", 0)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	var ep services.EventPublisher
+	if os.Getenv("AWS_INCLUDE_TESTS") == "1" {
+		t.Logf("Using AWS publisher")
+		ep = services.NewAwsEventPublisher(os.Getenv("AWS_EVENT_STREAM_NAME"))
+	} else {
+		t.Logf("Using local publisher")
+		ep = services.NewLocalEventPublisher(os.Getenv("AWS_EVENT_STREAM_NAME"))
+	}
+	t.Logf("Publishing %d events", len(tweets))
+	if err := PublishTweets(ep, tweets); err != nil {
+		t.Errorf(err.Error())
+	}
 }
