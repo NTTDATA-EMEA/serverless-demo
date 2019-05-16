@@ -9,6 +9,8 @@ demonstration of independence from AWS).
 
 ## Solution Overview
 
+![Diagram](https://drive.google.com/uc?authuser=0&id=1PxxyRGoLRru2y8I9RnnU0nVsQHXMdMlQ&export=download)
+
 The functionality implemented by the solution is rather simple: tweets with certain search
 keyword-based specification (S3) are queried by a function (Lambda) and published on an event stream (Kinesis).
 The event stream (Kinesis) drives another function (Lambda) which processes the events and
