@@ -1,8 +1,33 @@
 # Serverless Demo
 
+This is a demo for serverless computing. The demo implements an event streaming / sourcing
+pattern using serverless components from AWS. The lock-in to AWS is controlled by the
+[Serverless.com](https://serverless.com) framework and also the APIs are wrapped by a
+[pkg/services](https://github.com/okoeth/serverless-demo/tree/master/commons/pkg/services) package,
+which provides also a local file-system based implementation for testing purposes (and the
+demonstration of independence from AWS).
+
 ## Solution Overview
 
+The functionality implemented by the solution is rather simple: tweets with certain search
+keyword-based specification (S3) are queried by a function (Lambda) and published on an event stream (Kinesis).
+The event stream (Kinesis) drives another function (Lambda) which processes the events and
+generates statistics for buzzwords related to the original keywords. The statistics and the
+processing state of the event stream are persited in a document store (DynamoDB). The Twitter
+API keys are managed as secrets (SecretManager) and diagnoctic information is made available (CloudWatch).
+
+### Module: poll-tweets
+
+Polls the tweets from Twitter. For more information see: [./poll-tweet/README.md](./poll-tweet/README.md)
+
+### Module: collect buzzwords
+
+Builds a statistic for buzzwords. For more information see: [./collect-buzzwords/README.md](./collect-buzzwords/README.md)
+
 ## Prerequisites
+
+The development environment requires a number of packages which are provided in convenient Dockerfile.
+For more information see: [./collect-buzzwords/README.md](./collect-buzzwords/README.md)
 
 ### Basic Installations
 
@@ -19,6 +44,27 @@ sudo npm install serverless -g
 
 ```(sh)
 tbd.
+```
+
+### Using a containerised development environment
+
+To build the containerised development environment run:
+
+```(sh)
+docker build -t okoeth/serverless-demo-dev .
+```
+
+Run a developer shell with:
+
+```(sh)
+docker run -t -i -v "$PWD":/work -v "$HOME":/root --rm okoeth/serverless-demo-dev
+```
+
+Set environment with:
+
+```(sh)
+cd /work
+source setenv.sh
 ```
 
 ## Identity and Access Management
