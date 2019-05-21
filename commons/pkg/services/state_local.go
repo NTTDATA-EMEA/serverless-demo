@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -23,6 +24,9 @@ func NewLocalStateStorer(address, filename string) StateStorer {
 
 // GetState retrieves the state from the S3 bucket
 func (as *LocalStateStorer) GetState() (State, error) {
+	if as.Address == "" || as.Filename == "" {
+		return nil, errors.New("storer address and/or filename required")
+	}
 	buffer, err := ioutil.ReadFile(as.Address + "/" + as.Filename)
 	if err != nil {
 		return nil, err
