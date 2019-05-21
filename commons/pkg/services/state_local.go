@@ -27,14 +27,13 @@ func (as *LocalStateStorer) GetState() (State, error) {
 	if as.Address == "" || as.Filename == "" {
 		return nil, errors.New("storer address and/or filename required")
 	}
-	buffer, err := ioutil.ReadFile(as.Address + "/" + as.Filename)
-	if err != nil {
-		return nil, err
-	}
 	state := make(map[string]int64)
-	err = json.Unmarshal(buffer, &state)
-	if err != nil {
-		return nil, err
+	buffer, err := ioutil.ReadFile(as.Address + "/" + as.Filename)
+	if err == nil {
+		err = json.Unmarshal(buffer, &state)
+		if err != nil {
+			return nil, err
+		}
 	}
 	return state, nil
 }
