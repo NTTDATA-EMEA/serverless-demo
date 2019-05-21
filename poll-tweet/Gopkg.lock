@@ -16,7 +16,7 @@
   version = "v1.10.0"
 
 [[projects]]
-  digest = "1:8f8d65914d5fb07c68f2981db554ea212497050cf6837af4a30a2d9508835c8c"
+  digest = "1:328205b8cfe2f1246132c2046f3ca00e9ea7146c52ad79b5fe7d9481fa4fee69"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -60,24 +60,32 @@
     "service/sts",
   ]
   pruneopts = "UT"
-  revision = "7e9cd5af6d09680b0f9b3d983432e880425d42e7"
-  version = "v1.19.19"
+  revision = "98779fb4032754e8d2c6c8ec50c28b215666986d"
+  version = "v1.19.35"
 
 [[projects]]
-  digest = "1:166438587ed45ac211dab8a3ecebf4fa0c186d0db63430fb9127bbc2e5fcdc67"
+  digest = "1:c1100fc71e23b6a32b2c68a5202a848fd13811d5a10b12edb8019c3667d1cd9a"
   name = "github.com/cenkalti/backoff"
   packages = ["."]
   pruneopts = "UT"
-  revision = "1e4cf3da559842a91afcb6ea6141451e6c30c618"
-  version = "v2.1.1"
+  revision = "4b4cebaf850ec58f1bb1fec5bdebdf8501c2bc3f"
+  version = "v3.0.0"
+
+[[projects]]
+  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  pruneopts = "UT"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
 
 [[projects]]
   branch = "master"
-  digest = "1:b051e524e209fba795cb073d79b2c418690fefb41a30ab9727882329744da24c"
+  digest = "1:577bebb81dd9727b50705e898ee28f8cef844499b033b9a636a5de83ad7c87b5"
   name = "github.com/dghubble/go-twitter"
   packages = ["twitter"]
   pruneopts = "UT"
-  revision = "0022a70e9bee80163be82fdd74ac1d92bdebaf57"
+  revision = "53f972dc4b060ca0107e36a9b118d88c97d816e5"
 
 [[projects]]
   digest = "1:f3cacf5fd0e718de3f43af615e84372b318f61889140f6854f98b05894001d99"
@@ -110,6 +118,30 @@
   pruneopts = "UT"
   revision = "c2b33e84"
 
+[[projects]]
+  branch = "master"
+  digest = "1:4d9f0818e5f28c46275597235856e0a9c71f932bb0c5fabeef3a3a901db78194"
+  name = "github.com/okoeth/serverless-demo"
+  packages = ["commons/pkg/services"]
+  pruneopts = "UT"
+  revision = "eebed2e1120c0e3006aaa6d8e0e834a23353d603"
+
+[[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = "UT"
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
+  digest = "1:972c2427413d41a1e06ca4897e8528e5a1622894050e2f527b38ddf0f343f759"
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  pruneopts = "UT"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -119,6 +151,7 @@
     "github.com/dghubble/go-twitter/twitter",
     "github.com/dghubble/oauth1",
     "github.com/okoeth/serverless-demo/commons/pkg/services",
+    "github.com/stretchr/testify/assert",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1

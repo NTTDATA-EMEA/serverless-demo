@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/okoeth/serverless-demo/commons/pkg/services"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFindMaxSinceID(t *testing.T) {
@@ -20,10 +21,9 @@ func TestFindMaxSinceID(t *testing.T) {
 			maxSinceID = tweet.ID
 		}
 	}
-	if maxSinceID != findMaxSinceID(tweets, 0) {
-		t.Errorf("Difference in maxSinceID")
-	}
-	t.Logf("MaxSinceID is %d", maxSinceID)
+
+	maxSinceIDUnderTest := findMaxSinceID(tweets, maxSinceID)
+	assert.Equal(t, maxSinceID, maxSinceIDUnderTest)
 }
 
 func TestPollTweets(t *testing.T) {
@@ -49,9 +49,9 @@ func TestPollAllTweets(t *testing.T) {
 	} else {
 		s = services.NewLocalStateStorer("/tmp", os.Getenv("TWITTER_STATE_FILE"))
 	}
-	_, err := PollAllTweets(s)
-	if err != nil {
-		t.Errorf(err.Error())
+	allTweets, err := PollAllTweets(s)
+	if assert.NoError(t, err) {
+		assert.NotNil(t, allTweets, "Your TWITTER_STATE_FILE is probably an empty json. Please provide some initial data e.g. from TwitterState.json.")
 	}
 }
 
