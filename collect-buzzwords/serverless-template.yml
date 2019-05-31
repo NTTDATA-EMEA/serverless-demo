@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: collect-buzzwords 
+service: collect-buzzwords-__SERVERLESS_USER__ 
 
 frameworkVersion: ">=1.28.0 <2.0.0"
 
@@ -21,8 +21,8 @@ provider:
   stage: ${env:SERVERLESS_STAGE}
   region: ${env:AWS_REGION}
   tags:
-    project: serverless-demo
-    owner: oliver.koeth@nttdata.com
+    project: sls-demo-__SERVERLESS_USER__
+    owner: __SERVERLESS_USER__
   iamRoleStatements:
     - Effect: Allow
       Action:
@@ -39,7 +39,7 @@ package:
    - ./bin/**
 
 functions:
-  collect:
+  collect-__SERVERLESS_USER__:
     handler: bin/collect
     events:
       - stream:

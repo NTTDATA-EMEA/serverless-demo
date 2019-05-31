@@ -62,29 +62,98 @@ Run a developer shell with:
 docker run -t -i -v "$PWD":/work -v "$HOME":/root --rm okoeth/serverless-demo-dev
 ```
 
+### Setting the environment
+
 Set environment with:
 
 ```(sh)
 cd /work
-source setenv.sh
+source setenv-dev.sh
 ```
+
+And make sure the AWS CLI has the proper profile enabled. For the initial set-up an AWS user
+dedicated to the serverless-demo should be created. (See below.)
 
 ## Identity and Access Management
 
-### AWS Keys
+We will be setting up a dedicated user for the sewrverless demo. We assume that in your current
+configuration you are running with an AWS profile that has sufficient privileges to execute
+the below IAM commands.
+
+### IAM Policy
+
+The AWS keys used in this demo shall be tied towards the `sls-demo-${SERVERLESS_USER}` user who is backed by a
+`sls-demo-${SERVERLESS_USER}-policy` policy. The details of the policy have been included
+[here](./serverless-demo-policy). The policy can be created with the following command:
+
+```(sh)
+aws iam create-policy --policy-name sls-demo-${SERVERLESS_USER}-policy --policy-document file://serverless-demo-policy.json
+```
+
+Then the user can be created with the following command:
+
+```(sh)
+aws iam create-user \
+  --user-name sls-demo-${SERVERLESS_USER}
+  
+aws iam attach-user-policy \
+  --user-name sls-demo-${SERVERLESS_USER} \
+  --policy-arn arn:aws:iam::${AWS_ACCOUNT_ID}:policy/sls-demo-${SERVERLESS_USER}-policy
+```
+
+Finally, create the access keys using:
+
+```(sh)
+aws iam create-access-key --user-name sls-demo-${SERVERLESS_USER}
+```
 
 The AWS keys are provided in an AWS profile configuration which is provides
 
 ```(sh)
-sls config credentials --provider aws --key xxx --secret xxx --profile serverless-demo-dev
+sls config credentials --provider aws --key xxx --secret xxx --profile sls-demo-${SERVERLESS_USER}-dev
 ```
 
-### IAM Profile
+Unfortunately, `sls config` cannot set the AWS region, so we run the AWS CLI and provide èu-central-1` as region.
 
-The AWS keys are tied towards the `serverless-demo` user who is backed by a `serverless-demo`
-policy. The details of the policy have been included [here](./serverless-demo-policy).
+```(sh)
+aws configure
+```
+
+## Build and Deplyoment
+
+### Commons Package
+
+Make sure you have sources the basic environment with `source setenv-dev.sh` then `cd ./commons`. Initiialise
+common resources with:
+
+```(sh)
+make init
+```
+
+Then resolve dependencies with
+
+```(sh)
+make build
+```
+
+Note that since we do not create a binary or shared library or anything for commons, there is no actual
+`go build` running.
+
+### Poll Package
+
+Then `cd ../poll-tweet`and create resources with:
+
+```(sh)
+make init
+```
 
 ## Appendix A: Cheat Sheets
+
+### Upgrade AWS CLI on MacOS
+
+```(sh)
+sudo -H pip install --upgrade awscli --ignore-installed six
+```
 
 ### Read Kinesis via CLI
 

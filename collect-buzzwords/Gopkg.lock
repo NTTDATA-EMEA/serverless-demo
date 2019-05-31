@@ -2,7 +2,7 @@
 
 
 [[projects]]
-  digest = "1:c7d6e6564219e2beb7dbb2336ca1fb0e5e7730449958bd4a1f63591ac87fbd36"
+  digest = "1:deba4f4561cc7490127f599626c78cbfe972ffacc8edfaf77710de8922e0ae77"
   name = "github.com/aws/aws-lambda-go"
   packages = [
     "events",
@@ -12,11 +12,11 @@
     "lambdacontext",
   ]
   pruneopts = ""
-  revision = "08d251dc58f204411d79012fd6f1beefb7107fea"
-  version = "v1.10.0"
+  revision = "4c210d7623089d36b6bb6febf5a5e553bf73fbfb"
+  version = "v1.11.1"
 
 [[projects]]
-  digest = "1:af7f26259317885e69c29030c42842050b6672d9dd0db78070a067044db19c28"
+  digest = "1:f8bf2fcf62410b565b9caacb6a7a858302c22968f5738549c09a17dbe6ae306a"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -60,24 +60,24 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "86dc5d0ebe9f30ac9e939da21c240a98519343f2"
-  version = "v1.19.24"
+  revision = "5312c8dac9067d339c4e68d7e0dd5507b2f01849"
+  version = "v1.19.41"
 
 [[projects]]
-  digest = "1:59df7ab87ddca233bb586ff32c6feba12bf787260f6694dc45ceecea9d3e1a7e"
+  digest = "1:8561fc011218ed9821f6d73057154e692cdfd0f37e929ef6c4a574b6299136cb"
   name = "github.com/cenkalti/backoff"
   packages = ["."]
   pruneopts = ""
-  revision = "1e4cf3da559842a91afcb6ea6141451e6c30c618"
-  version = "v2.1.1"
+  revision = "4b4cebaf850ec58f1bb1fec5bdebdf8501c2bc3f"
+  version = "v3.0.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:eaaaf4a83d6979663a47d90dffdc8db351fd952f7d30eef01d4469d523324756"
+  digest = "1:9e3ba79493601f42e6ffd2b4eb9f845a764b2866825cc2adc0030766eeb16092"
   name = "github.com/dghubble/go-twitter"
   packages = ["twitter"]
   pruneopts = ""
-  revision = "0022a70e9bee80163be82fdd74ac1d92bdebaf57"
+  revision = "53f972dc4b060ca0107e36a9b118d88c97d816e5"
 
 [[projects]]
   digest = "1:fbf696b8af25bb4a791792b90cab2cfea212fac0ac0307ef72c298c5ebc1638b"
@@ -104,11 +104,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:1bcd3baedc8d0a05059aedb3a9b0a7319548b0e1fd46f8dcb90980c0d4895a9a"
+  digest = "1:ca9af77e14311f421cbb9c1a02f7e82f35dcdd1214f04fae2e6cb8616eccdfdc"
   name = "github.com/okoeth/serverless-demo"
   packages = ["commons/pkg/services"]
   pruneopts = ""
-  revision = "1bf1a58edb64ffdfc4c2772cec62d890d66d399e"
+  revision = "cb5c73e2fecd7f06d8605ba6a415e916b5cc9293"
 
 [solve-meta]
   analyzer-name = "dep"

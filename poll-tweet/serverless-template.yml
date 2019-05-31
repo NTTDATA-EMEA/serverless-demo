@@ -11,7 +11,7 @@
 #
 # Happy Coding!
 
-service: poll-tweet 
+service: poll-tweet-__SERVERLESS_USER__ 
 
 frameworkVersion: ">=1.28.0 <2.0.0"
 
@@ -21,14 +21,14 @@ provider:
   stage: ${env:SERVERLESS_STAGE}
   region: ${env:AWS_REGION}
   tags:
-    project: serverless-demo
-    owner: oliver.koeth@nttdata.com
+    project: sls-demo-__SERVERLESS_USER__
+    owner: __SERVERLESS_USER__
   iamRoleStatements:
     - Effect: Allow
       Action:
         - s3:PutObject
         - s3:GetObject
-      Resource: "arn:aws:s3:::${self:provider.stage}-serverless-demo-twitter-state/*"
+      Resource: "arn:aws:s3:::${env:TWITTER_STATE_BUCKET}/*"
     - Effect: Allow
       Action:
         - kinesis:DescribeStream
@@ -46,16 +46,16 @@ package:
    - ./bin/**
 
 functions:
-  poll:
+  poll-__SERVERLESS_USER__:
     handler: bin/poll
     memorySize: 128
     environment:
-      TWITTER_ACCESS_TOKEN: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/access-token~true}
-      TWITTER_ACCESS_SECRET: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/access-secret~true}
-      TWITTER_CONSUMER_KEY: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/consumer-key~true}
-      TWITTER_CONSUMER_SECRET: ${ssm:/aws/reference/secretsmanager/serverless-demo/twitter/consumer-secret~true}
+      TWITTER_ACCESS_TOKEN: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/access-token~true}
+      TWITTER_ACCESS_SECRET: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/access-secret~true}
+      TWITTER_CONSUMER_KEY: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/consumer-key~true}
+      TWITTER_CONSUMER_SECRET: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/consumer-secret~true}
       AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME}
-      TWITTER_STATE_BUCKET: ${self:provider.stage}-serverless-demo-twitter-state
+      TWITTER_STATE_BUCKET: ${env:TWITTER_STATE_BUCKET}
       TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
     events:
       - schedule: rate(5 minutes)
