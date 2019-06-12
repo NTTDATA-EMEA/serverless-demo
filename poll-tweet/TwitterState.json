@@ -1,5 +1,8 @@
 {
-    "#ai"    : 0,
-    "#cloud" : 0,
-    "#iot"   : 0
+    "#science": 0,
+    "#microservice": 0,
+    "#serverless": 0,
+    "#cloud": 0,
+    "#ddd": 0,
+    "#golang": 0
 }
