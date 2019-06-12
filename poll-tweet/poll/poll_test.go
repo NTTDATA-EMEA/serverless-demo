@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/okoeth/serverless-demo/commons/pkg/services"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestFindMaxSinceID(t *testing.T) {
@@ -20,10 +21,8 @@ func TestFindMaxSinceID(t *testing.T) {
 			maxSinceID = tweet.ID
 		}
 	}
-	if maxSinceID != findMaxSinceID(tweets, 0) {
-		t.Errorf("Difference in maxSinceID")
-	}
-	t.Logf("MaxSinceID is %d", maxSinceID)
+	maxSinceIDUnderTest := findMaxSinceID(tweets, maxSinceID)
+	assert.Equal(t, maxSinceID, maxSinceIDUnderTest)
 }
 
 func TestPollTweets(t *testing.T) {
