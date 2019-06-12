@@ -8,8 +8,8 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 
-	"github.com/golang/glog"
 	"github.com/okoeth/serverless-demo/commons/pkg/services"
+	log "github.com/sirupsen/logrus"
 )
 
 // SearchResultCount controls the batch size of the search results
@@ -17,6 +17,11 @@ var SearchResultCount = 100
 
 // TwitterTimeLayout is the format Twitter uses for CreatedAt
 var TwitterTimeLayout = "Mon Jan 2 15:04:05 -0700 2006"
+
+func init() {
+	log.SetLevel(log.InfoLevel)
+	log.SetFormatter(&log.TextFormatter{})
+}
 
 func findMaxSinceID(tweets []twitter.Tweet, prevSinceID int64) int64 {
 	maxSinceID := prevSinceID
@@ -30,7 +35,7 @@ func findMaxSinceID(tweets []twitter.Tweet, prevSinceID int64) int64 {
 
 // PollAllTweets loops over all search specs and polls tweets later than Since_ID
 func PollAllTweets(s services.StateStorer) ([]twitter.Tweet, error) {
-	glog.Info("PollAllTweets started...")
+	log.Info("PollAllTweets started...")
 	state, err := s.GetState()
 	if err != nil {
 		return nil, err
@@ -47,13 +52,16 @@ func PollAllTweets(s services.StateStorer) ([]twitter.Tweet, error) {
 	if err := s.SetState(state); err != nil {
 		return nil, err
 	}
-	glog.Info("PollAllTweets finished...")
+	log.Info("PollAllTweets finished...")
 	return allTweets, nil
 }
 
 // PollTweets is polling tweets from Twitter
 func PollTweets(query string, sinceID int64) ([]twitter.Tweet, error) {
-	glog.Infof("PollTweets for '%s' started...", query)
+	log.WithFields(log.Fields{
+		"hashtag": query,
+	}).Info("PollTweets started...")
+
 	consumerKey := os.Getenv("TWITTER_CONSUMER_KEY")
 	consumerSecret := os.Getenv("TWITTER_CONSUMER_SECRET")
 	accessToken := os.Getenv("TWITTER_ACCESS_TOKEN")
@@ -85,13 +93,17 @@ func PollTweets(query string, sinceID int64) ([]twitter.Tweet, error) {
 	for i := range search.Statuses {
 		search.Statuses[i].Source = query
 	}
-	glog.Infof("PollTweets for '%s' finished, found %d tweets...", query, len(search.Statuses))
+
+	log.WithFields(log.Fields{
+		"hashtag": query,
+		"found":   len(search.Statuses),
+	}).Info("PollTweets finished...")
 	return search.Statuses, nil
 }
 
 // PublishTweets sends tweets via event publisher
 func PublishTweets(ep services.EventPublisher, tweets []twitter.Tweet) error {
-	glog.Info("PublishTweets started...")
+	log.Info("PublishTweets started...")
 	var events []services.Event
 	for _, tweet := range tweets {
 		tm, err := time.Parse(TwitterTimeLayout, tweet.CreatedAt)
@@ -110,6 +122,6 @@ func PublishTweets(ep services.EventPublisher, tweets []twitter.Tweet) error {
 	if err := ep.PublishEvents(events); err != nil {
 		return err
 	}
-	glog.Info("PublishTweets finished...")
+	log.Info("PublishTweets finished...")
 	return nil
 }

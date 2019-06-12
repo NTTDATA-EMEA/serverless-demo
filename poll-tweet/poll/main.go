@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/okoeth/serverless-demo/commons/pkg/services"
+	log "github.com/sirupsen/logrus"
 )
 
 // Response is generic return value of lambda
@@ -25,7 +26,7 @@ func makeError(requestID string, err error) (Response, error) {
 
 // Handler receives and processes the request from the API gateway
 func Handler(request events.CloudWatchEvent) (Response, error) {
-	fmt.Printf("Received body: %s\n", request.ID)
+	log.WithFields(log.Fields{"ID": request.ID}).Info("Event received")
 	stateBucket := os.Getenv("TWITTER_STATE_BUCKET")
 	if stateBucket == "" {
 		return makeError(request.ID, errors.New(
@@ -42,7 +43,9 @@ func Handler(request events.CloudWatchEvent) (Response, error) {
 	if err != nil {
 		return makeError(request.ID, err)
 	}
-	fmt.Printf("Publishing %d new tweets\n", len(tweets))
+	log.WithFields(log.Fields{
+		"count": len(tweets),
+	}).Info("Publishing new tweets")
 	if len(tweets) > 0 {
 		streamName := os.Getenv("AWS_EVENT_STREAM_NAME")
 		if streamName == "" {
