@@ -8,6 +8,7 @@ import (
 	"github.com/dghubble/go-twitter/twitter"
 	"github.com/dghubble/oauth1"
 
+	"github.com/golang/glog"
 	"github.com/okoeth/serverless-demo/commons/pkg/services"
 )
 
@@ -29,6 +30,7 @@ func findMaxSinceID(tweets []twitter.Tweet, prevSinceID int64) int64 {
 
 // PollAllTweets loops over all search specs and polls tweets later than Since_ID
 func PollAllTweets(s services.StateStorer) ([]twitter.Tweet, error) {
+	glog.Info("PollAllTweets started...")
 	state, err := s.GetState()
 	if err != nil {
 		return nil, err
@@ -45,11 +47,13 @@ func PollAllTweets(s services.StateStorer) ([]twitter.Tweet, error) {
 	if err := s.SetState(state); err != nil {
 		return nil, err
 	}
+	glog.Info("PollAllTweets finished...")
 	return allTweets, nil
 }
 
 // PollTweets is polling tweets from Twitter
 func PollTweets(query string, sinceID int64) ([]twitter.Tweet, error) {
+	glog.Infof("PollTweets for '%s' started...", query)
 	consumerKey := os.Getenv("TWITTER_CONSUMER_KEY")
 	consumerSecret := os.Getenv("TWITTER_CONSUMER_SECRET")
 	accessToken := os.Getenv("TWITTER_ACCESS_TOKEN")
@@ -81,11 +85,13 @@ func PollTweets(query string, sinceID int64) ([]twitter.Tweet, error) {
 	for i := range search.Statuses {
 		search.Statuses[i].Source = query
 	}
+	glog.Infof("PollTweets for '%s' finished, found %d tweets...", query, len(search.Statuses))
 	return search.Statuses, nil
 }
 
 // PublishTweets sends tweets via event publisher
 func PublishTweets(ep services.EventPublisher, tweets []twitter.Tweet) error {
+	glog.Info("PublishTweets started...")
 	var events []services.Event
 	for _, tweet := range tweets {
 		tm, err := time.Parse(TwitterTimeLayout, tweet.CreatedAt)
@@ -104,5 +110,6 @@ func PublishTweets(ep services.EventPublisher, tweets []twitter.Tweet) error {
 	if err := ep.PublishEvents(events); err != nil {
 		return err
 	}
+	glog.Info("PublishTweets finished...")
 	return nil
 }
