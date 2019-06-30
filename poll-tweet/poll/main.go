@@ -24,7 +24,6 @@ func makeError(requestID string, err error) (Response, error) {
 	}, err
 }
 
-// Handler receives and processes the request from the API gateway
 func Handler(request events.CloudWatchEvent) (Response, error) {
 	log.WithFields(log.Fields{"ID": request.ID}).Info("Event received")
 	stateBucket := os.Getenv("TWITTER_STATE_BUCKET")
