@@ -15,7 +15,10 @@ provider:
       Action:
         - s3:PutObject
         - s3:GetObject
-      Resource: arn:aws:s3:::dev-aboczek-serverless-site/*
+      Resource: "arn:aws:s3:::${env:TWITTER_STATE_BUCKET}/*"
+  environment:
+    TWITTER_STATE_BUCKET: ${env:TWITTER_STATE_BUCKET}
+    TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
 
 package:
  exclude:
