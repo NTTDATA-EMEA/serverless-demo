@@ -1,4 +1,4 @@
-service: poll-state-aboczek
+service: poll-tweet-state-__SERVERLESS_USER__
 
 frameworkVersion: ">=1.28.0 <2.0.0"
 
