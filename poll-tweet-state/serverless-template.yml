@@ -1,0 +1,41 @@
+service: poll-tweet-state-__SERVERLESS_USER__
+
+frameworkVersion: ">=1.28.0 <2.0.0"
+
+provider:
+  name: aws
+  runtime: go1.x
+  stage: ${env:SERVERLESS_STAGE}
+  region: ${env:AWS_REGION}
+  tags:
+    project: sls-demo-__SERVERLESS_USER__
+    owner: __SERVERLESS_USER__
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource: "arn:aws:s3:::${env:TWITTER_STATE_BUCKET}/*"
+  environment:
+    TWITTER_STATE_BUCKET: ${env:TWITTER_STATE_BUCKET}
+    TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
+
+package:
+ exclude:
+   - ./**
+ include:
+   - ./bin/**
+
+functions:
+  read-__SERVERLESS_USER__:
+    handler: bin/read
+    events:
+      - http:
+          path: state
+          method: get
+  update-__SERVERLESS_USER__:
+    handler: bin/update
+    events:
+      - http:
+          path: state
+          method: put
