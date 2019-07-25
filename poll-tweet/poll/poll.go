@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/dghubble/go-twitter/twitter"
@@ -51,15 +52,20 @@ func PollAllTweets(s services.StateStorer) ([]twitter.Tweet, error) {
 	resc, errc := make(chan *TwitterSearchResults), make(chan error)
 	for query, sinceID := range state {
 		go func(q string, s int64) {
-			res, err := PollTweets(query, sinceID)
+			res, err := PollTweets(q, s)
 			if err != nil {
 				errc <- fmt.Errorf("error for query %s: %v", q, err)
+				return
 			}
 			resc <- res
 		}(query, sinceID)
 	}
 	// collect results
 	var allTweets []twitter.Tweet
+	queryTimeout, err := strconv.Atoi(os.Getenv("TWITTER_QUERY_TIMEOUT_SEC"))
+	if err != nil {
+		return nil, err
+	}
 	for i := 0; i < len(state); i++ {
 		select {
 		case res := <-resc:
@@ -67,7 +73,7 @@ func PollAllTweets(s services.StateStorer) ([]twitter.Tweet, error) {
 			state[res.Query] = findMaxSinceID(res.Tweets, res.SinceId)
 		case err := <-errc:
 			return nil, err
-		case <-time.After(time.Minute):
+		case <-time.After(time.Duration(queryTimeout) * time.Second):
 			return nil, errors.New("polling timeout, Twitter query took to long")
 		}
 	}

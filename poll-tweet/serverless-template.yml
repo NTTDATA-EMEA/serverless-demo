@@ -57,5 +57,6 @@ functions:
       AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME}
       TWITTER_STATE_BUCKET: ${env:TWITTER_STATE_BUCKET}
       TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
+      TWITTER_QUERY_TIMEOUT_SEC: ${env:TWITTER_QUERY_TIMEOUT_SEC}
     events:
       - schedule: rate(5 minutes)
