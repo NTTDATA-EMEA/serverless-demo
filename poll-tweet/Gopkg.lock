@@ -2,7 +2,7 @@
 
 
 [[projects]]
-  digest = "1:95fd14230b48a74765db94f7064f0b5617f52739a164f6d41e5b57bec5b3ff9b"
+  digest = "1:74aec68f709d9be009983e2d6f472fd53f52f65a8bae4b9c29c030e56109f111"
   name = "github.com/aws/aws-lambda-go"
   packages = [
     "events",
@@ -12,11 +12,11 @@
     "lambdacontext",
   ]
   pruneopts = "UT"
-  revision = "08d251dc58f204411d79012fd6f1beefb7107fea"
-  version = "v1.10.0"
+  revision = "578ce6d457b2e74402b4abadbff3d37ea8173f87"
+  version = "v1.12.0"
 
 [[projects]]
-  digest = "1:8f8d65914d5fb07c68f2981db554ea212497050cf6837af4a30a2d9508835c8c"
+  digest = "1:0a11a0faade60290e2123b6e02422d24db3f9811aba869d55ee3b324e0c28716"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -58,18 +58,19 @@
     "service/s3/s3iface",
     "service/s3/s3manager",
     "service/sts",
+    "service/sts/stsiface",
   ]
   pruneopts = "UT"
-  revision = "7e9cd5af6d09680b0f9b3d983432e880425d42e7"
-  version = "v1.19.19"
+  revision = "77b6968988559d355ab953b6436eafe6a76e4a92"
+  version = "v1.21.4"
 
 [[projects]]
-  digest = "1:166438587ed45ac211dab8a3ecebf4fa0c186d0db63430fb9127bbc2e5fcdc67"
+  digest = "1:c1100fc71e23b6a32b2c68a5202a848fd13811d5a10b12edb8019c3667d1cd9a"
   name = "github.com/cenkalti/backoff"
   packages = ["."]
   pruneopts = "UT"
-  revision = "1e4cf3da559842a91afcb6ea6141451e6c30c618"
-  version = "v2.1.1"
+  revision = "4b4cebaf850ec58f1bb1fec5bdebdf8501c2bc3f"
+  version = "v3.0.0"
 
 [[projects]]
   digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
@@ -81,11 +82,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:b051e524e209fba795cb073d79b2c418690fefb41a30ab9727882329744da24c"
+  digest = "1:ccbd5b4079e67036e339297ce0beb95a3d57575e4ca065142fc1859a9b2859a8"
   name = "github.com/dghubble/go-twitter"
   packages = ["twitter"]
   pruneopts = "UT"
-  revision = "0022a70e9bee80163be82fdd74ac1d92bdebaf57"
+  revision = "39e5462e111ffe165c62a88e2c25e1c1d1085bdb"
 
 [[projects]]
   digest = "1:f3cacf5fd0e718de3f43af615e84372b318f61889140f6854f98b05894001d99"
@@ -96,12 +97,20 @@
   version = "v0.5.0"
 
 [[projects]]
-  digest = "1:fba61d8584058169c5bd4625196f33077ba937f7131625d4440686c5e4cff380"
+  digest = "1:3f7570ad151d00244d94ea2a4f884084984be7617a92089b1c35db9f5d65be89"
   name = "github.com/dghubble/sling"
   packages = ["."]
   pruneopts = "UT"
-  revision = "e2624bf29a7de45ab0802b09aea94ca0a7815c5f"
-  version = "v1.2.0"
+  revision = "5a2946623f885d0cfcd7085b039baec12ad53fdd"
+  version = "v1.3.0"
+
+[[projects]]
+  branch = "master"
+  digest = "1:7b06e90b1f8a322a21e374b81c1a8c21402fd14f961f7bd609fa1f86a8857c45"
+  name = "github.com/fnproject/fdk-go"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "1458ca84e01dcce8c741a176d971537e80a4cf12"
 
 [[projects]]
   digest = "1:a63cff6b5d8b95638bfe300385d93b2a6d9d687734b863da8e09dc834510a690"
@@ -132,7 +141,7 @@
   name = "github.com/okoeth/serverless-demo"
   packages = ["commons/pkg/services"]
   pruneopts = "UT"
-  revision = "12a5f898f4109a077d7654c5c5d9d34f65778451"
+  revision = "799c39aa9546184f84d5fbb6ec5f4e1479d20946"
 
 [[projects]]
   digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
@@ -160,11 +169,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:010311506e3917b54487c35a4277e2709678a40c1587d82492c40b78b6a0a01d"
+  digest = "1:5632b0c4d972da51b5914f09fc5c1a8535e9d8d5d937e95ef83c423a0dd67f13"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = "UT"
-  revision = "93c9922d18aeb82498a065f07aec7ad7fa60dfb7"
+  revision = "fae7ac547cb717d141c433a2a173315e216b64c4"
 
 [solve-meta]
   analyzer-name = "dep"
@@ -174,6 +183,7 @@
     "github.com/aws/aws-lambda-go/lambda",
     "github.com/dghubble/go-twitter/twitter",
     "github.com/dghubble/oauth1",
+    "github.com/fnproject/fdk-go",
     "github.com/okoeth/serverless-demo/commons/pkg/services",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",

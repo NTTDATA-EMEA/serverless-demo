@@ -2,7 +2,9 @@ package main
 
 import (
 	"errors"
+	"fmt"
 	"os"
+	"strconv"
 	"time"
 
 	"github.com/dghubble/go-twitter/twitter"
@@ -17,6 +19,12 @@ var SearchResultCount = 100
 
 // TwitterTimeLayout is the format Twitter uses for CreatedAt
 var TwitterTimeLayout = "Mon Jan 2 15:04:05 -0700 2006"
+
+type TwitterSearchResults struct {
+	Query   string
+	SinceId int64
+	Tweets  []twitter.Tweet
+}
 
 func init() {
 	log.SetLevel(log.InfoLevel)
@@ -40,14 +48,34 @@ func PollAllTweets(s services.StateStorer) ([]twitter.Tweet, error) {
 	if err != nil {
 		return nil, err
 	}
-	var allTweets []twitter.Tweet
+	// run queries concurrently
+	resc, errc := make(chan *TwitterSearchResults), make(chan error)
 	for query, sinceID := range state {
-		tweets, err := PollTweets(query, sinceID)
-		if err != nil {
+		go func(q string, s int64) {
+			res, err := PollTweets(q, s)
+			if err != nil {
+				errc <- fmt.Errorf("error for query %s: %v", q, err)
+				return
+			}
+			resc <- res
+		}(query, sinceID)
+	}
+	// collect results
+	var allTweets []twitter.Tweet
+	queryTimeout, err := strconv.Atoi(os.Getenv("TWITTER_QUERY_TIMEOUT_SEC"))
+	if err != nil {
+		return nil, err
+	}
+	for i := 0; i < len(state); i++ {
+		select {
+		case res := <-resc:
+			allTweets = append(allTweets, res.Tweets...)
+			state[res.Query] = findMaxSinceID(res.Tweets, res.SinceId)
+		case err := <-errc:
 			return nil, err
+		case <-time.After(time.Duration(queryTimeout) * time.Second):
+			return nil, errors.New("polling timeout, Twitter query took to long")
 		}
-		allTweets = append(allTweets, tweets...)
-		state[query] = findMaxSinceID(tweets, sinceID)
 	}
 	if err := s.SetState(state); err != nil {
 		return nil, err
@@ -57,7 +85,7 @@ func PollAllTweets(s services.StateStorer) ([]twitter.Tweet, error) {
 }
 
 // PollTweets is polling tweets from Twitter
-func PollTweets(query string, sinceID int64) ([]twitter.Tweet, error) {
+func PollTweets(query string, sinceID int64) (*TwitterSearchResults, error) {
 	log.WithFields(log.Fields{
 		"hashtag": query,
 	}).Info("PollTweets started...")
@@ -68,7 +96,7 @@ func PollTweets(query string, sinceID int64) ([]twitter.Tweet, error) {
 	accessSecret := os.Getenv("TWITTER_ACCESS_SECRET")
 
 	if consumerKey == "" || consumerSecret == "" || accessToken == "" || accessSecret == "" {
-		return nil, errors.New("Consumer key/secret and Access token/secret required")
+		return nil, errors.New("consumer key/secret and access token/secret required")
 	}
 
 	config := oauth1.NewConfig(consumerKey, consumerSecret)
@@ -98,7 +126,7 @@ func PollTweets(query string, sinceID int64) ([]twitter.Tweet, error) {
 		"hashtag": query,
 		"found":   len(search.Statuses),
 	}).Info("PollTweets finished...")
-	return search.Statuses, nil
+	return &TwitterSearchResults{Query: query, SinceId: sinceID, Tweets: search.Statuses}, nil
 }
 
 // PublishTweets sends tweets via event publisher
