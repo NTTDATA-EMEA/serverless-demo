@@ -2,6 +2,7 @@ package services
 
 import (
 	"encoding/json"
+	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -26,9 +27,13 @@ func NewAwsStateStorer(address, filename string) StateStorer {
 
 // GetState retrieves the state from the S3 bucket
 func (as *AwsStateStorer) GetState() (State, error) {
-	downloader := s3manager.NewDownloader(session.New())
+	sess, err := newAwsSession()
+	if err != nil {
+		return nil, err
+	}
+	downloader := s3manager.NewDownloader(sess)
 	buffer := &aws.WriteAtBuffer{}
-	_, err := downloader.Download(buffer,
+	_, err = downloader.Download(buffer,
 		&s3.GetObjectInput{
 			Bucket: aws.String(as.Address),
 			Key:    aws.String(as.Filename),
@@ -50,7 +55,11 @@ func (as *AwsStateStorer) SetState(state State) error {
 	if err != nil {
 		return err
 	}
-	uploader := s3manager.NewUploader(session.New())
+	sess, err := newAwsSession()
+	if err != nil {
+		return err
+	}
+	uploader := s3manager.NewUploader(sess)
 	_, err = uploader.Upload(&s3manager.UploadInput{
 		Bucket: aws.String(as.Address),
 		Key:    aws.String(as.Filename),
@@ -64,8 +73,12 @@ func (as *AwsStateStorer) SetState(state State) error {
 
 // DeleteState writes the state to the S3 bucket
 func (as *AwsStateStorer) DeleteState() error {
-	s3service := s3.New(session.New())
-	_, err := s3service.DeleteObject(&s3.DeleteObjectInput{
+	sess, err := newAwsSession()
+	if err != nil {
+		return err
+	}
+	s3service := s3.New(sess)
+	_, err = s3service.DeleteObject(&s3.DeleteObjectInput{
 		Bucket: aws.String(as.Address),
 		Key:    aws.String(as.Filename)})
 	if err != nil {
@@ -79,4 +92,14 @@ func (as *AwsStateStorer) DeleteState() error {
 		return err
 	}
 	return nil
+}
+
+func newAwsSession() (*session.Session, error) {
+	sess, err := session.NewSession(&aws.Config{
+		Region: aws.String(os.Getenv("AWS_REGION")),
+	})
+	if err != nil {
+		return nil, err
+	}
+	return sess, nil
 }
