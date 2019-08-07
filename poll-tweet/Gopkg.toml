@@ -24,6 +24,7 @@
 #   go-tests = true
 #   unused-packages = true
 
+ignored = ["github.com/okoeth/serverless-demo/commons/pkg/services"]
 
 [[constraint]]
   name = "github.com/aws/aws-lambda-go"
