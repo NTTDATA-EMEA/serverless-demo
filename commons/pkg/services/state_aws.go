@@ -27,7 +27,7 @@ func NewAwsStateStorer(address, filename string) StateStorer {
 
 // GetState retrieves the state from the S3 bucket
 func (as *AwsStateStorer) GetState() (State, error) {
-	sess, err := newAwsSession()
+	sess, err := NewAwsSession()
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (as *AwsStateStorer) SetState(state State) error {
 	if err != nil {
 		return err
 	}
-	sess, err := newAwsSession()
+	sess, err := NewAwsSession()
 	if err != nil {
 		return err
 	}
@@ -73,7 +73,7 @@ func (as *AwsStateStorer) SetState(state State) error {
 
 // DeleteState writes the state to the S3 bucket
 func (as *AwsStateStorer) DeleteState() error {
-	sess, err := newAwsSession()
+	sess, err := NewAwsSession()
 	if err != nil {
 		return err
 	}
@@ -94,12 +94,8 @@ func (as *AwsStateStorer) DeleteState() error {
 	return nil
 }
 
-func newAwsSession() (*session.Session, error) {
-	sess, err := session.NewSession(&aws.Config{
+func NewAwsSession() (*session.Session, error) {
+	return session.NewSession(&aws.Config{
 		Region: aws.String(os.Getenv("AWS_REGION")),
 	})
-	if err != nil {
-		return nil, err
-	}
-	return sess, nil
 }

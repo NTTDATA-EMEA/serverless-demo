@@ -40,3 +40,41 @@ functions:
       - http:
           path: state
           method: put
+
+resources:
+  Resources:
+    DynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: sls-demo-twitter-state
+        AttributeDefinitions:
+          - AttributeName: namespace
+            AttributeType: S
+          - AttributeName: version
+            AttributeType: N
+        KeySchema:
+          - AttributeName: namespace
+            KeyType: HASH
+          - AttributeName: version
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    DynamoDbIamPolicy:
+      Type: AWS::IAM::Policy
+      DependsOn: DynamoDbTable
+      Properties:
+        PolicyName: lambda-dynamodb
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:Query
+                - dynamodb:Scan
+              Resource: arn:aws:dynamodb:eu-central-1:${env:AWS_ACCOUNT_ID}:table/sls-demo-twitter-state
+        Roles:
+          - Ref: IamRoleLambdaExecution
+
