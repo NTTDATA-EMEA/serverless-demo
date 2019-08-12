@@ -10,6 +10,8 @@ import (
 	"strconv"
 )
 
+type TableKey map[string]*dynamodb.AttributeValue
+
 type AwsDynamoDbStateStorer struct {
 	TableName string
 	Namespace string
@@ -29,14 +31,7 @@ func (as *AwsDynamoDbStateStorer) GetState() (State, error) {
 	}
 	result, err := svc.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(as.TableName),
-		Key: map[string]*dynamodb.AttributeValue{
-			"Namespace": {
-				S: aws.String(as.Namespace),
-			},
-			"Version": {
-				N: aws.String(strconv.Itoa(as.Version)),
-			},
-		},
+		Key:       createTableKey(as.Namespace, as.Version),
 	})
 	if err != nil {
 		return nil, err
@@ -89,7 +84,18 @@ func (as *AwsDynamoDbStateStorer) SetState(state State) error {
 }
 
 func (as *AwsDynamoDbStateStorer) DeleteState() error {
-	panic("implement me")
+	svc, err := getDynamoDbService()
+	if err != nil {
+		return err
+	}
+	_, err = svc.DeleteItem(&dynamodb.DeleteItemInput{
+		TableName: aws.String(as.TableName),
+		Key:       createTableKey(as.Namespace, as.Version),
+	})
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func NewAwsDynamoDbStateStorer(namespace string, version int) StateStorer {
@@ -106,4 +112,15 @@ func getDynamoDbService() (*dynamodb.DynamoDB, error) {
 		return nil, err
 	}
 	return dynamodb.New(sess), nil
+}
+
+func createTableKey(namespace string, version int) TableKey {
+	return TableKey{
+		"Namespace": {
+			S: aws.String(namespace),
+		},
+		"Version": {
+			N: aws.String(strconv.Itoa(version)),
+		},
+	}
 }
