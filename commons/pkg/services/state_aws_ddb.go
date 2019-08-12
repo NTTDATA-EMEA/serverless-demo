@@ -6,10 +6,12 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 
 	log "github.com/sirupsen/logrus"
+	"os"
 	"strconv"
 )
 
 type AwsDynamoDbStateStorer struct {
+	TableName string
 	Namespace string
 	Version   int
 }
@@ -27,7 +29,7 @@ func (as *AwsDynamoDbStateStorer) GetState() (State, error) {
 	}
 	svc := dynamodb.New(sess)
 	result, err := svc.GetItem(&dynamodb.GetItemInput{
-		TableName: aws.String("sls-demo-twitter-state"),
+		TableName: aws.String(as.TableName),
 		Key: map[string]*dynamodb.AttributeValue{
 			"namespace": {
 				S: aws.String(as.Namespace),
@@ -64,6 +66,7 @@ func (as *AwsDynamoDbStateStorer) DeleteState() error {
 
 func NewAwsDynamoDbStateStorer(namespace string, version int) StateStorer {
 	return &AwsDynamoDbStateStorer{
+		TableName: os.Getenv("TWITTER_STATE_TABLE"),
 		Namespace: namespace,
 		Version:   version,
 	}
