@@ -23,18 +23,17 @@ type AwsDynamoDbItem struct {
 }
 
 func (as *AwsDynamoDbStateStorer) GetState() (State, error) {
-	sess, err := NewAwsSession()
+	svc, err := getDynamoDbService()
 	if err != nil {
 		return nil, err
 	}
-	svc := dynamodb.New(sess)
 	result, err := svc.GetItem(&dynamodb.GetItemInput{
 		TableName: aws.String(as.TableName),
 		Key: map[string]*dynamodb.AttributeValue{
-			"namespace": {
+			"Namespace": {
 				S: aws.String(as.Namespace),
 			},
-			"version": {
+			"Version": {
 				N: aws.String(strconv.Itoa(as.Version)),
 			},
 		},
@@ -57,7 +56,36 @@ func (as *AwsDynamoDbStateStorer) GetState() (State, error) {
 }
 
 func (as *AwsDynamoDbStateStorer) SetState(state State) error {
-	panic("implement me")
+	svc, err := getDynamoDbService()
+	if err != nil {
+		return err
+	}
+	item := AwsDynamoDbItem{
+		Namespace: as.Namespace,
+		Version:   as.Version,
+		State:     state,
+	}
+	log.WithFields(log.Fields{
+		"unmarshaled state": item,
+	}).Info("SetState() to DynamoDB...")
+	av, err := dynamodbattribute.MarshalMap(item)
+	if err != nil {
+		return err
+	}
+	log.WithFields(log.Fields{
+		"marshaled state": av,
+	}).Info("SetState() to DynamoDB...")
+	out, err := svc.PutItem(&dynamodb.PutItemInput{
+		TableName: aws.String(as.TableName),
+		Item:      av,
+	})
+	if err != nil {
+		return err
+	}
+	log.WithFields(log.Fields{
+		"written state": out,
+	}).Info("SetState() to DynamoDB...")
+	return nil
 }
 
 func (as *AwsDynamoDbStateStorer) DeleteState() error {
@@ -70,4 +98,12 @@ func NewAwsDynamoDbStateStorer(namespace string, version int) StateStorer {
 		Namespace: namespace,
 		Version:   version,
 	}
+}
+
+func getDynamoDbService() (*dynamodb.DynamoDB, error) {
+	sess, err := NewAwsSession()
+	if err != nil {
+		return nil, err
+	}
+	return dynamodb.New(sess), nil
 }

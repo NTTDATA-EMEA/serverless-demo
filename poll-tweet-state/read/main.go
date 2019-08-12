@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
 	"github.com/okoeth/serverless-demo/commons/pkg/services"
+	"os"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -20,7 +21,7 @@ type Response events.APIGatewayProxyResponse
 func Handler() (Response, error) {
 	var buf bytes.Buffer
 	// s := services.NewAwsStateStorer(os.Getenv("TWITTER_STATE_BUCKET"), os.Getenv("TWITTER_STATE_FILE"))
-	s := services.NewAwsDynamoDbStateStorer("aboczek", 1)
+	s := services.NewAwsDynamoDbStateStorer(os.Getenv("SERVERLESS_USER"), 1)
 	state, err := s.GetState()
 	if err != nil {
 		return Response{StatusCode: 404}, err

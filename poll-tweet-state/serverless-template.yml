@@ -18,6 +18,7 @@ provider:
         - s3:GetObject
       Resource: "arn:aws:s3:::${env:TWITTER_STATE_BUCKET}/*"
   environment:
+    SERVERLESS_USER: ${env:SERVERLESS_USER}
     TWITTER_STATE_BUCKET: ${env:TWITTER_STATE_BUCKET}
     TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
     TWITTER_STATE_TABLE: ${env:TWITTER_STATE_TABLE}

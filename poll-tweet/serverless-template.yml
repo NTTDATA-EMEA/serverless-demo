@@ -51,6 +51,7 @@ functions:
     handler: bin/poll
     memorySize: 128
     environment:
+      SERVERLESS_USER: ${env:SERVERLESS_USER}
       TWITTER_ACCESS_TOKEN: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/access-token~true}
       TWITTER_ACCESS_SECRET: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/access-secret~true}
       TWITTER_CONSUMER_KEY: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/consumer-key~true}

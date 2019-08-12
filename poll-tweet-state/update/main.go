@@ -26,7 +26,8 @@ func Handler(req events.APIGatewayProxyRequest) (Response, error) {
 		return Response{StatusCode: 404}, err
 	}
 
-	s := services.NewAwsStateStorer(os.Getenv("TWITTER_STATE_BUCKET"), os.Getenv("TWITTER_STATE_FILE"))
+	// s := services.NewAwsStateStorer(os.Getenv("TWITTER_STATE_BUCKET"), os.Getenv("TWITTER_STATE_FILE"))
+	s := services.NewAwsDynamoDbStateStorer(os.Getenv("SERVERLESS_USER"), 1)
 	if err := s.SetState(state); err != nil {
 		return Response{StatusCode: 404}, err
 	}
