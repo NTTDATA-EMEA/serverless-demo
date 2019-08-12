@@ -37,7 +37,8 @@ func Handler(request events.CloudWatchEvent) (Response, error) {
 		return makeError(request.ID, errors.New(
 			"Variable TWITTER_STATE_FILE not defined. Try export TWITTER_STATE_FILE=<file-name>"))
 	}
-	s := services.NewAwsStateStorer(stateBucket, stateFile)
+	// s := services.NewAwsStateStorer(stateBucket, stateFile)
+	s := services.NewAwsDynamoDbStateStorer(os.Getenv("SERVERLESS_USER"), 1)
 	tweets, err := PollAllTweets(s)
 	if err != nil {
 		return makeError(request.ID, err)
