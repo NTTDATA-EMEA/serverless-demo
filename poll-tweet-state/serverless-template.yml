@@ -42,6 +42,12 @@ functions:
       - http:
           path: state
           method: put
+  delete-__SERVERLESS_USER__:
+    handler: bin/delete
+    events:
+      - http:
+          path: state
+          method: delete
 
 resources:
   Resources:
