@@ -7,3 +7,4 @@ export TWITTER_STATE_FILE=TwitterState.json
 export TWITTER_STATE_BUCKET=${SERVERLESS_STAGE}-sls-demo-twitter-state-${SERVERLESS_USER}
 export TWITTER_QUERY_TIMEOUT_SEC=10
 export TWITTER_STATE_TABLE=sls-demo-twitter-state
+export TWITTER_STATE_TYPE=db
