@@ -2,10 +2,12 @@ package services
 
 import (
 	"encoding/json"
-
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/kinesis"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // AwsEventPublisher implements the EventPublisher interface
@@ -35,6 +37,7 @@ func (ep *AwsEventPublisher) PublishEvents(events []EventEnvelope) error {
 			Data:         jsn,
 			PartitionKey: aws.String(events[i].Subject.Properties["shard"]),
 		}
+		log.Info(fmt.Sprintf("%s", jsn))
 	}
 	s, err := session.NewSession()
 	if err != nil {
