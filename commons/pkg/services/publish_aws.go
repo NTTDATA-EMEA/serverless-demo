@@ -20,26 +20,27 @@ func NewAwsEventPublisher(streamName string) EventPublisher {
 	}
 }
 
-// PublishEvent is a dummy implementation just logging the event
-func (ep *AwsEventPublisher) PublishEvent(event Event) error {
-	ep.PublishEvents([]Event{event})
-	return nil
+func (ep *AwsEventPublisher) PublishEvent(event EventEnvelope) error {
+	return ep.PublishEvents([]EventEnvelope{event})
 }
 
-// PublishEvents is a dummy implementation just logging the events
-func (ep *AwsEventPublisher) PublishEvents(events []Event) error {
-	var records []*kinesis.PutRecordsRequestEntry
+func (ep *AwsEventPublisher) PublishEvents(events []EventEnvelope) error {
+	records := make([]*kinesis.PutRecordsRequestEntry, len(events))
 	for i := range events {
-		json, err := json.Marshal(events[i])
+		jsn, err := json.Marshal(events[i])
 		if err != nil {
 			return err
 		}
-		records = append(records, &kinesis.PutRecordsRequestEntry{
-			Data:         json,
-			PartitionKey: aws.String(events[i].Shard),
-		})
+		records[i] = &kinesis.PutRecordsRequestEntry{
+			Data:         jsn,
+			PartitionKey: aws.String(events[i].Subject.Properties["shard"]),
+		}
 	}
-	svc := kinesis.New(session.New())
+	s, err := session.NewSession()
+	if err != nil {
+		return err
+	}
+	svc := kinesis.New(s)
 	if _, err := svc.PutRecords(&kinesis.PutRecordsInput{
 		Records:    records,
 		StreamName: aws.String(ep.StreamName),
