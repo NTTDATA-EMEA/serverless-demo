@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -28,8 +27,9 @@ func (ep *AwsEventPublisher) PublishEvent(event EventEnvelope) error {
 
 func (ep *AwsEventPublisher) PublishEvents(events []EventEnvelope) error {
 	records := make([]*kinesis.PutRecordsRequestEntry, len(events))
-	for i := range events {
-		jsn, err := json.Marshal(events[i])
+	for i, event := range events {
+		// jsn, err := json.Marshal(events[i])
+		jsn, err := event.Marshal()
 		if err != nil {
 			return err
 		}
