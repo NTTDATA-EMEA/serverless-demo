@@ -18,12 +18,12 @@ func NewLocalEventPublisher(streamName string) EventPublisher {
 }
 
 // PublishEvent is a dummy implementation just logging the event
-func (ep *LocalEventPublisher) PublishEvent(event EventEnvelope) error {
-	return ep.PublishEvents([]EventEnvelope{event})
+func (ep *LocalEventPublisher) PublishEvent(event EventJsoner) error {
+	return ep.PublishEvents([]EventJsoner{event})
 }
 
 // PublishEvents is a dummy implementation just logging the events (highly inefficient ;-)
-func (ep *LocalEventPublisher) PublishEvents(events []EventEnvelope) error {
+func (ep *LocalEventPublisher) PublishEvents(events []EventJsoner) error {
 	for _, event := range events {
 		jsn, err := json.Marshal(event)
 		if err != nil {

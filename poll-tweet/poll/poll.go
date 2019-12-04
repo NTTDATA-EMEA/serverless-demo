@@ -132,32 +132,38 @@ func PollTweets(query string, sinceID int64) (*TwitterSearchResults, error) {
 // PublishTweets sends tweets via event publisher
 func PublishTweets(ep services.EventPublisher, tweets []twitter.Tweet) error {
 	log.Info("PublishTweets started...")
-	events := make([]services.EventEnvelope, len(tweets))
+	events := make([]PollEvent, len(tweets))
 	for i, tweet := range tweets {
 		tm, err := time.Parse(TwitterTimeLayout, tweet.CreatedAt)
 		if err != nil {
 			return err
 		}
-		events[i] = services.EventEnvelope{
-			Event:     services.POLL_TWEET_RUN_QUERY,
-			Timestamp: tm,
-			Subject: services.EventSubject{
-				Id:   "1",
-				Name: "query",
-				Properties: map[string]string{
-					"shard": tweet.Source,
+		events[i] = PollEvent{
+			EventEnvelope: services.EventEnvelope{
+				Event:     services.POLL_TWEET_RUN_QUERY,
+				Timestamp: tm,
+				Subject: services.EventSubject{
+					Id:   "1",
+					Name: "query",
+					Properties: map[string]string{
+						"buzzword": tweet.Source,
+					},
 				},
-			},
-			Object: services.EventObject{
-				Id:   strconv.FormatInt(tweet.ID, 10),
-				Name: "tweet",
-				Properties: map[string]string{
-					"body": tweet.Text,
+				Object: services.EventObject{
+					Id:   strconv.FormatInt(tweet.ID, 10),
+					Name: "tweet",
+					Properties: map[string]string{
+						"body": tweet.Text,
+					},
 				},
 			},
 		}
 	}
-	if err := ep.PublishEvents(events); err != nil {
+	ejsn := make([]services.EventJsoner, len(events))
+	for i := range events {
+		ejsn[i] = &events[i]
+	}
+	if err := ep.PublishEvents(ejsn); err != nil {
 		return err
 	}
 	log.Info("PublishTweets finished...")

@@ -12,6 +12,7 @@ const (
 type EventJsoner interface {
 	Marshal() ([]byte, error)
 	Unmarshal(jsn []byte) error
+	GetBuzzword() string
 }
 
 type EventEnvelope struct {
@@ -27,10 +28,6 @@ func (e EventEnvelope) Marshal() ([]byte, error) {
 
 func (e *EventEnvelope) Unmarshal(jsn []byte) error {
 	return json.Unmarshal(jsn, e)
-}
-
-func NewEventEnvelope(event string, timestamp time.Time, subject EventSubject, object EventObject) *EventEnvelope {
-	return &EventEnvelope{Event: event, Timestamp: timestamp, Subject: subject, Object: object}
 }
 
 type EventSubject struct {

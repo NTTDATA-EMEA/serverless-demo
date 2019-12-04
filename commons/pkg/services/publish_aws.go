@@ -21,11 +21,11 @@ func NewAwsEventPublisher(streamName string) EventPublisher {
 	}
 }
 
-func (ep *AwsEventPublisher) PublishEvent(event EventEnvelope) error {
-	return ep.PublishEvents([]EventEnvelope{event})
+func (ep *AwsEventPublisher) PublishEvent(event EventJsoner) error {
+	return ep.PublishEvents([]EventJsoner{event})
 }
 
-func (ep *AwsEventPublisher) PublishEvents(events []EventEnvelope) error {
+func (ep *AwsEventPublisher) PublishEvents(events []EventJsoner) error {
 	records := make([]*kinesis.PutRecordsRequestEntry, len(events))
 	for i, event := range events {
 		// jsn, err := json.Marshal(events[i])
@@ -35,7 +35,7 @@ func (ep *AwsEventPublisher) PublishEvents(events []EventEnvelope) error {
 		}
 		records[i] = &kinesis.PutRecordsRequestEntry{
 			Data:         jsn,
-			PartitionKey: aws.String(events[i].Subject.Properties["shard"]),
+			PartitionKey: aws.String(event.GetBuzzword()),
 		}
 		log.Info(fmt.Sprintf("%s", jsn))
 	}
