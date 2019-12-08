@@ -15,13 +15,13 @@ func TestFindMaxSinceID(t *testing.T) {
 		t.Errorf("Error polling tweets: %s", err.Error())
 	}
 	maxSinceID := int64(0)
-	for _, tweet := range tweets {
+	for _, tweet := range tweets.Tweets {
 		t.Logf("Tweet ID: %d", tweet.ID)
 		if tweet.ID > maxSinceID {
 			maxSinceID = tweet.ID
 		}
 	}
-	maxSinceIDUnderTest := findMaxSinceID(tweets, maxSinceID)
+	maxSinceIDUnderTest := findMaxSinceID(tweets.Tweets, maxSinceID)
 	assert.Equal(t, maxSinceID, maxSinceIDUnderTest)
 }
 
@@ -67,8 +67,8 @@ func TestPublishTweets(t *testing.T) {
 		t.Logf("Using local publisher")
 		ep = services.NewLocalEventPublisher(os.Getenv("AWS_EVENT_STREAM_NAME"))
 	}
-	t.Logf("Publishing %d events", len(tweets))
-	if err := PublishTweets(ep, tweets); err != nil {
+	t.Logf("Publishing %d events", len(tweets.Tweets))
+	if err := PublishTweets(ep, tweets.Tweets); err != nil {
 		t.Errorf(err.Error())
 	}
 }
