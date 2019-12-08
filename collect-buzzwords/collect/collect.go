@@ -24,14 +24,6 @@ type BuzzwordCount struct {
 	LastUpdate time.Time
 }
 
-type PollEvent struct {
-	services.EventEnvelope
-}
-
-type CollectEvent struct {
-	services.EventEnvelope
-}
-
 // NewBuzzwordCounts creates new set of buzzword counts
 func NewBuzzwordCounts(keyword string) *BuzzwordCounts {
 	return &BuzzwordCounts{
@@ -44,8 +36,8 @@ func NewBuzzwordCounts(keyword string) *BuzzwordCounts {
 func CollectBuzzwords(events []PollEvent) map[string]*BuzzwordCounts {
 	b := make(map[string]*BuzzwordCounts)
 	for i := range events {
-		tweet := events[i].Object.Properties["body"]
-		shard := events[i].Subject.Properties["shard"]
+		tweet := events[i].GetTweetText()
+		shard := events[i].GetBuzzword()
 		if _, ok := b[shard]; !ok {
 			b[shard] = NewBuzzwordCounts(shard)
 		}
