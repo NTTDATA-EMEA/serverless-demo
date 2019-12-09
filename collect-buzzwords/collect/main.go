@@ -2,13 +2,13 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	"github.com/okoeth/serverless-demo/commons/pkg/services"
-	"time"
-
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/okoeth/serverless-demo/commons/pkg/services"
 	log "github.com/sirupsen/logrus"
+	"os"
 )
 
 func handler(ctx context.Context, ke events.KinesisEvent) error {
@@ -29,31 +29,16 @@ func handler(ctx context.Context, ke events.KinesisEvent) error {
 		}).Info("Got PollEvent")
 	}
 	cbs := CollectBuzzwords(pes)
-	for i := range cbs {
-		event := CollectEvent{
-			EventEnvelope: services.EventEnvelope{
-				Event:     services.COLLECT_BUZZWORDS_AGGREGATED,
-				Timestamp: time.Time{},
-				Subject: services.EventSubject{
-					Id:   i,
-					Name: cbs[i].Keyword,
-				},
-				Object: services.EventObject{
-					Id:   i,
-					Name: "aggregate",
-					Properties: map[string]interface{}{
-						"buzzwords": cbs[i].Buzzwords,
-					},
-				},
-			},
+	if len(cbs) > 0 {
+		streamName := os.Getenv("AWS_EVENT_STREAM_NAME")
+		if streamName == "" {
+			return errors.New("environment variable AWS_EVENT_STREAM_NAME is not defined")
 		}
-		jsn, err := event.Marshal()
-		if err != nil {
+		ep := services.NewAwsEventPublisher(streamName)
+		if err := PublishCollectBuzzwordAggregates(ep, cbs); err != nil {
 			return err
 		}
-		log.WithField("buzzword", fmt.Sprintf("%s", jsn)).Info("Marshalled Collect Event...")
 	}
-
 	return nil
 }
 

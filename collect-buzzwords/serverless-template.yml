@@ -30,6 +30,8 @@ provider:
         - kinesis:DescribeStream
         - kinesis:DescribeSummary
         - kinesis:GetRecords
+        - kinesis:PutRecord
+        - kinesis:PutRecords
         - kinesis:GetShardIterator
       Resource: ${env:AWS_EVENT_STREAM_ARN}
 
@@ -42,6 +44,8 @@ package:
 functions:
   collect-__SERVERLESS_USER__:
     handler: bin/collect
+    environment:
+      AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME}
     events:
       - stream:
           type: kinesis

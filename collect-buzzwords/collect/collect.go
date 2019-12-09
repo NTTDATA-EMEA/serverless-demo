@@ -1,6 +1,9 @@
 package main
 
 import (
+	"fmt"
+	"github.com/okoeth/serverless-demo/commons/pkg/services"
+	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
 )
@@ -78,4 +81,48 @@ func AddBuzzwordCounts(target, source *BuzzwordCounts) {
 		}
 		target.Buzzwords[k].Count += source.Buzzwords[k].Count
 	}
+}
+
+// PublishCollectBuzzwordAggregates publishes events with aggregated values
+func PublishCollectBuzzwordAggregates(ep services.EventPublisher, cbs map[string]*BuzzwordCounts) error {
+	log.Info("PublishBuzzwordAggregates started...")
+	events := make([]CollectEvent, len(cbs))
+	i := 0
+	for k := range cbs {
+		events[i] = CollectEvent{
+			EventEnvelope: services.EventEnvelope{
+				Event:     services.COLLECT_BUZZWORDS_AGGREGATED,
+				Timestamp: time.Time{},
+				Subject: services.EventSubject{
+					Id:   k,
+					Name: cbs[k].Keyword,
+					Properties: map[string]string{
+						"partitionKey": cbs[k].Keyword,
+					},
+				},
+				Object: services.EventObject{
+					Id:   k,
+					Name: "aggregate",
+					Properties: map[string]interface{}{
+						"buzzwords": cbs[k].Buzzwords,
+					},
+				},
+			},
+		}
+		jsn, err := events[i].Marshal()
+		if err != nil {
+			return err
+		}
+		log.WithField("buzzword", fmt.Sprintf("%s", jsn)).Info("Marshalled Collect Event...")
+		i++
+	}
+	ejsn := make([]services.EventJsoner, len(events))
+	for i := range events {
+		ejsn[i] = &events[i]
+	}
+	if err := ep.PublishEvents(ejsn); err != nil {
+		return err
+	}
+	log.Info("PublishBuzzwordAggregates finished...")
+	return nil
 }
