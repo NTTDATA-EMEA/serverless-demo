@@ -2,17 +2,19 @@ package services
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 )
 
 const (
-	POLL_TWEET_RUN_QUERY string = "POLL_TWEET_RUN_QUERY"
+	POLL_TWEET_RUN_QUERY         string = "POLL_TWEET_RUN_QUERY"
+	COLLECT_BUZZWORDS_AGGREGATED string = "COLLECT_BUZZWORDS_AGGREGATED"
 )
 
 type EventJsoner interface {
 	Marshal() ([]byte, error)
 	Unmarshal(jsn []byte) error
-	GetBuzzword() string
+	GetPartitionKey() (*string, error)
 }
 
 type EventEnvelope struct {
@@ -37,7 +39,15 @@ type EventSubject struct {
 }
 
 type EventObject struct {
-	Id         string            `json:"id"`
-	Name       string            `json:"name"`
-	Properties map[string]string `json:"properties"`
+	Id         string                 `json:"id"`
+	Name       string                 `json:"name"`
+	Properties map[string]interface{} `json:"properties"`
+}
+
+func (e EventEnvelope) GetPartitionKey() (*string, error) {
+	pk, ok := e.Subject.Properties["partitionKey"]
+	if !ok {
+		return nil, errors.New("partitionKey key not found in properties of the subject")
+	}
+	return &pk, nil
 }

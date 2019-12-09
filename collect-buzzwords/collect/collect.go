@@ -1,13 +1,8 @@
 package main
 
 import (
-	"encoding/json"
 	"strings"
 	"time"
-
-	"github.com/okoeth/serverless-demo/commons/pkg/services"
-
-	"github.com/dghubble/go-twitter/twitter"
 )
 
 // BuzzwordCounts holds the buzzwords for a single keyword
@@ -36,24 +31,24 @@ func NewBuzzwordCounts(keyword string) *BuzzwordCounts {
 func CollectBuzzwords(events []PollEvent) map[string]*BuzzwordCounts {
 	b := make(map[string]*BuzzwordCounts)
 	for i := range events {
-		tweet := events[i].GetTweetText()
-		shard := events[i].GetBuzzword()
-		if _, ok := b[shard]; !ok {
-			b[shard] = NewBuzzwordCounts(shard)
+		ttx := events[i].GetTweetText()
+		bw := events[i].GetBuzzword()
+		if _, ok := b[bw]; !ok {
+			b[bw] = NewBuzzwordCounts(bw)
 		}
-		CollectBuzzwordCounts(tweet, b[tweet.Source])
+		CollectBuzzwordCounts(ttx, bw, b[bw])
 	}
 	return b
 }
 
 // CollectBuzzwordCounts extracts buzzwords (i.e. hashtags) from tweets and increments counters
-func CollectBuzzwordCounts(tweet *twitter.Tweet, bc *BuzzwordCounts) {
-	if tweet.Source != bc.Keyword {
+func CollectBuzzwordCounts(tw string, bw string, bc *BuzzwordCounts) {
+	if bw != bc.Keyword {
 		return
 	}
-	words := strings.Fields(tweet.Text)
+	words := strings.Fields(tw)
 	for _, word := range words {
-		if strings.HasPrefix(word, "#") && len(word) > 1 && word != tweet.Source {
+		if strings.HasPrefix(word, "#") && len(word) > 1 && word != bw {
 			if _, ok := bc.Buzzwords[word]; !ok {
 				bc.Buzzwords[word] = &BuzzwordCount{
 					Keyword:    bc.Keyword,
@@ -83,17 +78,4 @@ func AddBuzzwordCounts(target, source *BuzzwordCounts) {
 		}
 		target.Buzzwords[k].Count += source.Buzzwords[k].Count
 	}
-}
-
-// CreateTweetFromMap re-marshals a generic map to a proper type
-func CreateTweetFromMap(m map[string]interface{}) (*twitter.Tweet, error) {
-	b, err := json.Marshal(m)
-	if err != nil {
-		return nil, err
-	}
-	var t twitter.Tweet
-	if err := json.Unmarshal(b, &t); err != nil {
-		return nil, err
-	}
-	return &t, nil
 }

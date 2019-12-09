@@ -15,5 +15,5 @@ func (e PollEvent) GetBuzzword() string {
 }
 
 func (e PollEvent) GetTweetText() string {
-	return e.Object.Properties["body"]
+	return e.Object.Properties["body"].(string)
 }

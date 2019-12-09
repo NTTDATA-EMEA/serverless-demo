@@ -146,13 +146,14 @@ func PublishTweets(ep services.EventPublisher, tweets []twitter.Tweet) error {
 					Id:   "1",
 					Name: "query",
 					Properties: map[string]string{
-						"buzzword": tweet.Source,
+						"partitionKey": tweet.Source,
+						"buzzword":     tweet.Source,
 					},
 				},
 				Object: services.EventObject{
 					Id:   strconv.FormatInt(tweet.ID, 10),
 					Name: "tweet",
-					Properties: map[string]string{
+					Properties: map[string]interface{}{
 						"body": tweet.Text,
 					},
 				},
