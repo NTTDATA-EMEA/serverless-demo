@@ -1,11 +1,11 @@
 .PHONY: init-state init-secrets build clean deploy
 
 build:
-	dep ensure -v
+	go mod download
 	env GOOS=linux go build -ldflags="-s -w" -o bin/poll poll/*.go
 
 clean:
-	rm -rf ./bin ./vendor Gopkg.lock
+	rm -rf ./bin
 
 deploy: build
 	sed -e 's/__SERVERLESS_USER__/'${SERVERLESS_USER}'/g' < serverless-template.yml > serverless.yml

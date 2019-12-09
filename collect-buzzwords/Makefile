@@ -1,7 +1,7 @@
 .PHONY: build clean deploy init init-stream
 
 build:
-	dep ensure -v
+	go mod download
 	env GOOS=linux go build -ldflags="-s -w" -o bin/collect collect/*.go
 
 clean:
