@@ -2,7 +2,7 @@
 
 build:
 	go mod download
-	env GOOS=linux go build -ldflags="-s -w" -o bin/collect collect/*.go
+	env GOOS=linux go build -ldflags="-s -w" -o bin/persist persist/*.go
 
 clean:
 	rm -rf ./bin
