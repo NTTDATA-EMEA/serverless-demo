@@ -33,13 +33,9 @@ func (ep *AwsEventPublisher) PublishEvents(events []EventJsoner) error {
 		if err != nil {
 			return err
 		}
-		pk, err := event.GetPartitionKey()
-		if err != nil {
-			return err
-		}
 		records[i] = &kinesis.PutRecordsRequestEntry{
 			Data:         jsn,
-			PartitionKey: aws.String(*pk),
+			PartitionKey: aws.String(event.GetPartitionKey()),
 		}
 		log.Info(fmt.Sprintf("%s", jsn))
 	}

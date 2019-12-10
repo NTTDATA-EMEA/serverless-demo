@@ -30,10 +30,17 @@ provider:
         - kinesis:DescribeStream
         - kinesis:DescribeSummary
         - kinesis:GetRecords
+        - kinesis:GetShardIterator
+      Resource: ${env:AWS_EVENT_STREAM_ARN_POLL_TWEET}
+    - Effect: Allow
+      Action:
+        - kinesis:DescribeStream
+        - kinesis:DescribeSummary
+        - kinesis:GetRecords
         - kinesis:PutRecord
         - kinesis:PutRecords
         - kinesis:GetShardIterator
-      Resource: ${env:AWS_EVENT_STREAM_ARN}
+      Resource: ${env:AWS_EVENT_STREAM_ARN_COLLECT_BUZZWORDS}
 
 package:
  exclude:
@@ -45,11 +52,11 @@ functions:
   collect-__SERVERLESS_USER__:
     handler: bin/collect
     environment:
-      AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME}
+      AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME_COLLECT_BUZZWORDS}
     events:
       - stream:
           type: kinesis
-          arn: ${env:AWS_EVENT_STREAM_ARN}
+          arn: ${env:AWS_EVENT_STREAM_ARN_POLL_TWEET}
           batchSize: 10
           startingPosition: TRIM_HORIZON
           enabled: true

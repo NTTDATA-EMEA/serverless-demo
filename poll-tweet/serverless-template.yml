@@ -38,7 +38,7 @@ provider:
         - kinesis:PutRecord
         - kinesis:PutRecords
         - kinesis:GetShardIterator
-      Resource: ${env:AWS_EVENT_STREAM_ARN}
+      Resource: ${env:AWS_EVENT_STREAM_ARN_POLL_TWEET}
 
 package:
  exclude:
@@ -56,7 +56,7 @@ functions:
       TWITTER_ACCESS_SECRET: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/access-secret~true}
       TWITTER_CONSUMER_KEY: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/consumer-key~true}
       TWITTER_CONSUMER_SECRET: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/consumer-secret~true}
-      AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME}
+      AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME_POOL_TWEET}
       TWITTER_STATE_BUCKET: ${env:TWITTER_STATE_BUCKET}
       TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
       TWITTER_QUERY_TIMEOUT_SEC: ${env:TWITTER_QUERY_TIMEOUT_SEC}
