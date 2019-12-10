@@ -29,5 +29,10 @@ package:
 functions:
   persist-__SERVERLESS_USER__:
     handler: bin/persist
-    environment:
-      AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME_COLLECT_BUZZWORDS}
+    events:
+      - stream:
+          type: kinesis
+          arn: ${env:AWS_EVENT_STREAM_ARN_COLLECT_BUZZWORDS}
+          batchSize: 10
+          startingPosition: TRIM_HORIZON
+          enabled: true
