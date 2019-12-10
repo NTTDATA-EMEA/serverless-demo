@@ -17,15 +17,15 @@ func handler(ctx context.Context, ke events.KinesisEvent) error {
 	}).Info("Received events")
 	pes := make([]PollEvent, len(ke.Records))
 	for i := range ke.Records {
+		fmt.Printf("Kinesis data: %s", ke.Records[i].Kinesis.Data)
 		if err := pes[i].Unmarshal(ke.Records[i].Kinesis.Data); err != nil {
 			fmt.Printf("ERROR: Unmarshalling event: %s", err.Error())
 			return err
 		}
 		log.WithFields(log.Fields{
-			"id":       pes[i].Object.Id,
-			"name":     pes[i].Object.Name,
-			"buzzword": pes[i].GetBuzzword(),
-			"tweet":    pes[i].GetTweetText(),
+			"event":    pes[i].Event,
+			"buzzword": pes[i].Subject.Buzzword,
+			"tweet":    pes[i].Object.TweetText,
 		}).Info("Got PollEvent")
 	}
 	cbs := CollectBuzzwords(pes)

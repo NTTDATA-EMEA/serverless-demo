@@ -10,16 +10,16 @@ import (
 
 // BuzzwordCounts holds the buzzwords for a single keyword
 type BuzzwordCounts struct {
-	Keyword   string
-	Buzzwords map[string]*BuzzwordCount
+	Keyword   string                    `json:"keyword"`
+	Buzzwords map[string]*BuzzwordCount `json:"buzzwords"`
 }
 
 // BuzzwordCount holds the counts for a single keyword/buzzword combo
 type BuzzwordCount struct {
-	Keyword    string
-	Buzzword   string
-	Count      int
-	LastUpdate time.Time
+	Keyword    string    `json:"keyword"`
+	Buzzword   string    `json:"buzzword"`
+	Count      int       `json:"count"`
+	LastUpdate time.Time `json:"last_update"`
 }
 
 // NewBuzzwordCounts creates new set of buzzword counts
@@ -34,8 +34,8 @@ func NewBuzzwordCounts(keyword string) *BuzzwordCounts {
 func CollectBuzzwords(events []PollEvent) map[string]*BuzzwordCounts {
 	b := make(map[string]*BuzzwordCounts)
 	for i := range events {
-		ttx := events[i].GetTweetText()
-		bw := events[i].GetBuzzword()
+		ttx := events[i].Object.TweetText
+		bw := events[i].Subject.Buzzword
 		if _, ok := b[bw]; !ok {
 			b[bw] = NewBuzzwordCounts(bw)
 		}
@@ -91,23 +91,11 @@ func PublishCollectBuzzwordAggregates(ep services.EventPublisher, cbs map[string
 	for k := range cbs {
 		events[i] = CollectEvent{
 			EventEnvelope: services.EventEnvelope{
-				Event:     services.COLLECT_BUZZWORDS_AGGREGATED,
+				Event:     services.CollectBuzzwordsAggregated,
 				Timestamp: time.Time{},
-				Subject: services.EventSubject{
-					Id:   k,
-					Name: cbs[k].Keyword,
-					Properties: map[string]string{
-						"partitionKey": cbs[k].Keyword,
-					},
-				},
-				Object: services.EventObject{
-					Id:   k,
-					Name: "aggregate",
-					Properties: map[string]interface{}{
-						"buzzwords": cbs[k].Buzzwords,
-					},
-				},
 			},
+			Subject: CollectEventSubject{PartitionKey: cbs[k].Keyword, Keyword: cbs[k].Keyword},
+			Object:  CollectEventObject{AggregatedBuzzwords: cbs[k]},
 		}
 		jsn, err := events[i].Marshal()
 		if err != nil {

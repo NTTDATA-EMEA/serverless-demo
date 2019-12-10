@@ -20,7 +20,7 @@ func getEventPublishers() []EventPublisher {
 func TestEventPublisher(t *testing.T) {
 	for _, eventPublisher := range getEventPublishers() {
 		if err := eventPublisher.PublishEvent(EventEnvelope{
-			Event:     POLL_TWEET_RUN_QUERY,
+			Event:     PollTweetRunQuery,
 			Timestamp: time.Time{},
 			Subject:   EventSubject{},
 			Object:    EventObject{},

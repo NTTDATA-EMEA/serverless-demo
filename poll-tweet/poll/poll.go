@@ -140,23 +140,16 @@ func PublishTweets(ep services.EventPublisher, tweets []twitter.Tweet) error {
 		}
 		events[i] = PollEvent{
 			EventEnvelope: services.EventEnvelope{
-				Event:     services.POLL_TWEET_RUN_QUERY,
+				Event:     services.PollTweetRunQuery,
 				Timestamp: tm,
-				Subject: services.EventSubject{
-					Id:   "1",
-					Name: "query",
-					Properties: map[string]string{
-						"partitionKey": tweet.Source,
-						"buzzword":     tweet.Source,
-					},
-				},
-				Object: services.EventObject{
-					Id:   strconv.FormatInt(tweet.ID, 10),
-					Name: "tweet",
-					Properties: map[string]interface{}{
-						"body": tweet.Text,
-					},
-				},
+			},
+			Subject: PollEventSubject{
+				Buzzword:     tweet.Source,
+				PartitionKey: tweet.Source,
+			},
+			Object: PollEventObject{
+				TweetId:   tweet.ID,
+				TweetText: tweet.Text,
 			},
 		}
 	}
