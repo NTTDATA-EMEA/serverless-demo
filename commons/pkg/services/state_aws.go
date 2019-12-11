@@ -2,11 +2,9 @@ package services
 
 import (
 	"encoding/json"
-	"os"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3manager"
 )
@@ -92,10 +90,4 @@ func (as *AwsStateStorer) DeleteState() error {
 		return err
 	}
 	return nil
-}
-
-func NewAwsSession() (*session.Session, error) {
-	return session.NewSession(&aws.Config{
-		Region: aws.String(os.Getenv("AWS_REGION")),
-	})
 }

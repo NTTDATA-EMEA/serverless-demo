@@ -55,7 +55,7 @@ resources:
     DynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: sls-demo-twitter-state
+        TableName: ${env:TWITTER_STATE_TABLE}
         AttributeDefinitions:
           - AttributeName: namespace
             AttributeType: S
@@ -83,7 +83,7 @@ resources:
                 - dynamodb:PutItem
                 - dynamodb:Query
                 - dynamodb:Scan
-              Resource: arn:aws:dynamodb:eu-central-1:${env:AWS_ACCOUNT_ID}:table/sls-demo-twitter-state
+              Resource: arn:aws:dynamodb:eu-central-1:${env:AWS_ACCOUNT_ID}:table/${env:TWITTER_STATE_TABLE}
         Roles:
           - Ref: IamRoleLambdaExecution
 
