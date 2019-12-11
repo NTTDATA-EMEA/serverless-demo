@@ -19,6 +19,9 @@ provider:
         - kinesis:GetRecords
         - kinesis:GetShardIterator
       Resource: ${env:AWS_EVENT_STREAM_ARN_COLLECT_BUZZWORDS}
+  environment:
+    SERVERLESS_USER: ${env:SERVERLESS_USER}
+    BUZZWORD_AGGREGATES_TABLE: ${env:BUZZWORD_AGGREGATES_TABLE}
 
 package:
   exclude:
@@ -36,3 +39,41 @@ functions:
           batchSize: 10
           startingPosition: TRIM_HORIZON
           enabled: true
+
+resources:
+  Resources:
+    DynamoDbTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${env:BUZZWORD_AGGREGATES_TABLE}
+        AttributeDefinitions:
+          - AttributeName: buzzword_namespace
+            AttributeType: S
+          - AttributeName: version
+            AttributeType: N
+        KeySchema:
+          - AttributeName: buzzword_namespace
+            KeyType: HASH
+          - AttributeName: version
+            KeyType: RANGE
+        ProvisionedThroughput:
+          ReadCapacityUnits: 1
+          WriteCapacityUnits: 1
+    DynamoDbIamPolicy:
+      Type: AWS::IAM::Policy
+      DependsOn: DynamoDbTable
+      Properties:
+        PolicyName: lambda-dynamodb
+        PolicyDocument:
+          Version: '2012-10-17'
+          Statement:
+            - Effect: Allow
+              Action:
+                - dynamodb:GetItem
+                - dynamodb:PutItem
+                - dynamodb:Query
+                - dynamodb:Scan
+              Resource: arn:aws:dynamodb:eu-central-1:${env:AWS_ACCOUNT_ID}:table/${env:BUZZWORD_AGGREGATES_TABLE}
+        Roles:
+          - Ref: IamRoleLambdaExecution
+
