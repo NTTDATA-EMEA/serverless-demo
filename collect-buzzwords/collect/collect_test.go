@@ -97,36 +97,20 @@ func (suite *CollectBuzzwordsTestSuite) SetupTest() {
 
 	suite.testEvents = []PollEvent{
 		{
-			services.EventEnvelope{
-				Event:     "",
-				Timestamp: time.Now(),
-				Object: services.EventObject{
-					Id:         "1",
-					Name:       "query",
-					Properties: map[string]string{},
-				},
-				Subject: services.EventSubject{
-					Id:         "1",
-					Name:       "tweet",
-					Properties: map[string]string{},
-				},
+			EventEnvelope: services.EventEnvelope{
+				Event:     services.CollectBuzzwordsAggregated,
+				Timestamp: time.Time{},
 			},
+			Subject: PollEventSubject{},
+			Object:  PollEventObject{},
 		},
 		{
-			services.EventEnvelope{
-				Event:     "",
-				Timestamp: time.Now(),
-				Object: services.EventObject{
-					Id:         "2",
-					Name:       "query",
-					Properties: map[string]string{},
-				},
-				Subject: services.EventSubject{
-					Id:         "2",
-					Name:       "tweet",
-					Properties: map[string]string{},
-				},
+			EventEnvelope: services.EventEnvelope{
+				Event:     services.CollectBuzzwordsAggregated,
+				Timestamp: time.Time{},
 			},
+			Subject: PollEventSubject{},
+			Object:  PollEventObject{},
 		},
 	}
 }
@@ -142,30 +126,6 @@ func (suite *CollectBuzzwordsTestSuite) TestNewBuzzwordCounts() {
 	bc := NewBuzzwordCounts("#cloud")
 	if bc.Keyword != "#cloud" {
 		t.Errorf("Keyword not properly initialised")
-	}
-}
-
-func (suite *CollectBuzzwordsTestSuite) TestAddSameBuzzwordCounts() {
-	t := suite.T()
-	AddBuzzwordCounts(&suite.target, &suite.same)
-	if len(suite.target.Buzzwords) != 3 {
-		t.Errorf("Target structure incomplete")
-	}
-}
-
-func (suite *CollectBuzzwordsTestSuite) TestAddOtherBuzzwordCounts() {
-	t := suite.T()
-	AddBuzzwordCounts(&suite.target, &suite.other)
-	if len(suite.target.Buzzwords) != 3 {
-		t.Errorf("Target structure changed")
-	}
-}
-
-func (suite *CollectBuzzwordsTestSuite) TestAddToEmptyBuzzwordCounts() {
-	t := suite.T()
-	AddBuzzwordCounts(&suite.empty, &suite.same)
-	if len(suite.empty.Buzzwords) != 3 {
-		t.Errorf("Target structure incomplete")
 	}
 }
 
@@ -237,7 +197,7 @@ func (suite *CollectBuzzwordsTestSuite) TestProcessEvents() {
 						t.Errorf("Error unmarshalling event: %s", err.Error())
 						return
 					}
-					t.Logf("Event: %+v\n", event.GetTweetText())
+					t.Logf("Event: %+v\n", event.Object.TweetText)
 				}
 			}
 			si = r.NextShardIterator
