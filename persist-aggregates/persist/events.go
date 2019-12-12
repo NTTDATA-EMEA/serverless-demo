@@ -18,7 +18,7 @@ type CollectEventSubject struct {
 }
 
 type CollectEventObject struct {
-	AggregatedBuzzwords *BuzzwordCounts `json:"aggregated_buzzwords"`
+	AggregatedBuzzwords BuzzwordCounts `json:"aggregated_buzzwords"`
 }
 
 func (ce CollectEvent) GetPartitionKey() string {

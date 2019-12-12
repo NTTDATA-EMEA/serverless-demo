@@ -36,17 +36,12 @@ func (as *AwsDynamoDbStateStorer) GetState() (State, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.WithFields(log.Fields{
-		"state read from db": result,
-	}).Info("GetState() got from DynamoDB...")
 	item := AwsDynamoDbItem{}
 	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
 	if err != nil {
 		return nil, err
 	}
-	log.WithFields(log.Fields{
-		"state unmarshalling": item,
-	}).Info("GetState() got from DynamoDB...")
+	log.WithField("state unmarshalling", item).Info("GetState() got from DynamoDB...")
 	return item.State, nil
 }
 

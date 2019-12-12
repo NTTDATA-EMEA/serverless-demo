@@ -65,24 +65,6 @@ func CollectBuzzwordCounts(tw string, bw string, bc *BuzzwordCounts) {
 	}
 }
 
-// AddBuzzwordCounts adds the counts from source to target
-func AddBuzzwordCounts(target, source *BuzzwordCounts) {
-	if target.Keyword != source.Keyword {
-		return
-	}
-	for k := range source.Buzzwords {
-		if _, ok := target.Buzzwords[k]; !ok {
-			target.Buzzwords[k] = &BuzzwordCount{
-				Keyword:    source.Keyword,
-				Buzzword:   k,
-				Count:      0,
-				LastUpdate: time.Now(),
-			}
-		}
-		target.Buzzwords[k].Count += source.Buzzwords[k].Count
-	}
-}
-
 // PublishCollectBuzzwordAggregates publishes events with aggregated values
 func PublishCollectBuzzwordAggregates(ep services.EventPublisher, cbs map[string]*BuzzwordCounts) error {
 	log.Info("PublishBuzzwordAggregates started...")
