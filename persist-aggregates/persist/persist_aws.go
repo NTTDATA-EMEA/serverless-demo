@@ -34,6 +34,7 @@ type AwsDynamoDbAggregateItem struct {
 	UpdateCounter     int            `json:"update_counter"`
 }
 
+// GetAggregate retrieves one aggregate by buzzword as key
 func (as AwsDynamoDbAggregateStorer) GetAggregate(buzzword string) (BuzzwordCounts, error) {
 	empty := BuzzwordCounts{}
 	svc, err := services.NewDynamoDbService()
@@ -56,10 +57,33 @@ func (as AwsDynamoDbAggregateStorer) GetAggregate(buzzword string) (BuzzwordCoun
 	return item.Aggregate, nil
 }
 
+// GetAllAggregates retrieves all aggregates from DB
 func (as AwsDynamoDbAggregateStorer) GetAllAggregates() ([]BuzzwordCounts, error) {
-	panic("implement me")
+	svc, err := services.NewDynamoDbService()
+	if err != nil {
+		return nil, fmt.Errorf("GetAllAggregates.NewDynamoDbService()>%w", err)
+	}
+	result, err := svc.Scan(&dynamodb.ScanInput{
+		TableName: aws.String(as.TableName),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("GetAllAggregates.Scan()>%w", err)
+	}
+	bcs := make([]BuzzwordCounts, len(result.Items))
+	for i := range result.Items {
+		item := AwsDynamoDbAggregateItem{}
+		err = dynamodbattribute.UnmarshalMap(result.Items[i], &item)
+		fmt.Printf("Loaded from DB and unmarshalled: %+v", item)
+		if err != nil {
+			return nil, fmt.Errorf("GetAllAggregates.UnmarshalMap()>%w", err)
+		}
+		bcs[i] = item.Aggregate
+	}
+	return bcs, nil
 }
 
+// UpdateOrSetAggregate updates the aggregate with new counts or buzzwords
+// or creates new aggregate
 func (as AwsDynamoDbAggregateStorer) UpdateOrSetAggregate(ag BuzzwordCounts) error {
 	item := AwsDynamoDbAggregateItem{
 		BuzzwordNamespace: ag.Keyword + as.Namespace,
