@@ -5,12 +5,13 @@ import (
 	"fmt"
 	"github.com/aws/aws-lambda-go/events"
 	"github.com/aws/aws-lambda-go/lambda"
+	"github.com/okoeth/serverless-demo/persist-aggregates/commons"
 	"os"
 )
 
 func handler(ctx context.Context, ke events.KinesisEvent) error {
-	storer := NewAwsDynamoDbAggregateStorer(os.Getenv("SERVERLESS_USER"), 1)
-	pes := make([]CollectEvent, len(ke.Records))
+	storer := commons.NewAwsDynamoDbAggregateStorer(os.Getenv("SERVERLESS_USER"), 1)
+	pes := make([]commons.CollectEvent, len(ke.Records))
 	for i := range ke.Records {
 		fmt.Printf("Kinesis data: %s", ke.Records[i].Kinesis.Data)
 		if err := pes[i].Unmarshal(ke.Records[i].Kinesis.Data); err != nil {

@@ -1,0 +1,1 @@
+docker run --rm -v "$PWD":/Users/BOCZEK/Development/Workspace/Golang/src/github.com/okoeth/serverless-demo -w /Users/BOCZEK/Development/Workspace/Golang/src/github.com/okoeth/serverless-demo golang:1.13 make build-pa

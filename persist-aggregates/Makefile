@@ -7,7 +7,7 @@ build:
 clean:
 	rm -rf ./bin
 
-deploy: build
+deploy:
 	sed -e 's/__SERVERLESS_USER__/'${SERVERLESS_USER}'/g' < serverless-template.yml > serverless.yml
 	sls deploy --verbose
 

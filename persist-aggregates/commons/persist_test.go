@@ -1,4 +1,4 @@
-package main
+package commons
 
 import "github.com/stretchr/testify/suite"
 

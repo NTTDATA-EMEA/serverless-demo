@@ -1,4 +1,4 @@
-package main
+package commons
 
 type AggregateStorer interface {
 	GetAggregate(buzzword string) (BuzzwordCounts, error)
