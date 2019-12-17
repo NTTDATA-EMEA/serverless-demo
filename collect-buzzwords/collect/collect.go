@@ -51,7 +51,7 @@ func CollectBuzzwordCounts(tw string, bw string, bc *BuzzwordCounts) {
 	}
 	words := strings.Fields(tw)
 	for _, word := range words {
-		if strings.HasPrefix(word, "#") && len(word) > 1 && word != bw {
+		if strings.HasPrefix(word, "#") && len(word) > 1 && strings.ToLower(word) != strings.ToLower(bw) {
 			if _, ok := bc.Buzzwords[word]; !ok {
 				bc.Buzzwords[word] = &BuzzwordCount{
 					Keyword:    bc.Keyword,

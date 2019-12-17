@@ -39,6 +39,22 @@ functions:
           batchSize: 10
           startingPosition: TRIM_HORIZON
           enabled: true
+  readall-__SERVERLESS_USER__:
+    handler: bin/readall
+    events:
+      - http:
+          path: aggregate
+          method: get
+  read-__SERVERLESS_USER__:
+    handler: bin/read
+    events:
+      - http:
+          path: aggregate/{id}
+          method: get
+          request:
+            parameter:
+              paths:
+                name: true
 
 resources:
   Resources:

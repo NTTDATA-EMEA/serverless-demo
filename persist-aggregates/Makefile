@@ -3,6 +3,8 @@
 build:
 	go mod download
 	env GOOS=linux go build -ldflags="-s -w" -o bin/persist persist/*.go
+	env GOOS=linux go build -ldflags="-s -w" -o bin/readall readall/*.go
+	env GOOS=linux go build -ldflags="-s -w" -o bin/read read/*.go
 
 clean:
 	rm -rf ./bin
