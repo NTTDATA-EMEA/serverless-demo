@@ -28,6 +28,7 @@ func Handler(request events.CloudWatchEvent) (Response, error) {
 	log.WithFields(log.Fields{"ID": request.ID}).Info("Event received")
 	var s services.StateStorer
 
+	/* Variant storing the state in S3
 	stateBucket := os.Getenv("TWITTER_STATE_BUCKET")
 	if stateBucket == "" {
 		return makeError(request.ID, errors.New(
@@ -39,7 +40,9 @@ func Handler(request events.CloudWatchEvent) (Response, error) {
 		return makeError(request.ID, errors.New(
 			"environment variable TWITTER_STATE_FILE is not defined"))
 	}
-	// s := services.NewAwsStateStorer(stateBucket, stateFile)
+	s = services.NewAwsStateStorer(stateBucket, stateFile)
+	*/
+
 	s = services.NewAwsDynamoDbStateStorer(os.Getenv("SERVERLESS_USER"), 1)
 	tweets, err := PollAllTweets(s)
 	if err != nil {

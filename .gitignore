@@ -168,4 +168,5 @@ $RECYCLE.BIN/
 /poll-tweet/setenv-twitter.sh
 node_modules/
 package-lock.json
+build*.sh
 

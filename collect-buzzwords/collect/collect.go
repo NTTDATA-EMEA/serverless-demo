@@ -51,7 +51,7 @@ func CollectBuzzwordCounts(tw string, bw string, bc *BuzzwordCounts) {
 	}
 	words := strings.Fields(tw)
 	for _, word := range words {
-		if strings.HasPrefix(word, "#") && len(word) > 1 && word != bw {
+		if strings.HasPrefix(word, "#") && len(word) > 1 && strings.ToLower(word) != strings.ToLower(bw) {
 			if _, ok := bc.Buzzwords[word]; !ok {
 				bc.Buzzwords[word] = &BuzzwordCount{
 					Keyword:    bc.Keyword,
@@ -62,24 +62,6 @@ func CollectBuzzwordCounts(tw string, bw string, bc *BuzzwordCounts) {
 			}
 			bc.Buzzwords[word].Count++
 		}
-	}
-}
-
-// AddBuzzwordCounts adds the counts from source to target
-func AddBuzzwordCounts(target, source *BuzzwordCounts) {
-	if target.Keyword != source.Keyword {
-		return
-	}
-	for k := range source.Buzzwords {
-		if _, ok := target.Buzzwords[k]; !ok {
-			target.Buzzwords[k] = &BuzzwordCount{
-				Keyword:    source.Keyword,
-				Buzzword:   k,
-				Count:      0,
-				LastUpdate: time.Now(),
-			}
-		}
-		target.Buzzwords[k].Count += source.Buzzwords[k].Count
 	}
 }
 

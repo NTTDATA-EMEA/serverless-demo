@@ -1,6 +1,6 @@
-service: poll-tweet-state-__SERVERLESS_USER__
+service: persist-aggregates-__SERVERLESS_USER__
 
-frameworkVersion: ">=1.28.0 <2.0.0"
+frameworkVersion: '>=1.28.0 <2.0.0'
 
 provider:
   name: aws
@@ -14,55 +14,61 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - s3:PutObject
-        - s3:GetObject
-      Resource: "arn:aws:s3:::${env:TWITTER_STATE_BUCKET}/*"
+        - kinesis:DescribeStream
+        - kinesis:DescribeSummary
+        - kinesis:GetRecords
+        - kinesis:GetShardIterator
+      Resource: ${env:AWS_EVENT_STREAM_ARN_COLLECT_BUZZWORDS}
   environment:
     SERVERLESS_USER: ${env:SERVERLESS_USER}
-    TWITTER_STATE_BUCKET: ${env:TWITTER_STATE_BUCKET}
-    TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
-    TWITTER_STATE_TYPE: ${env:TWITTER_STATE_TYPE}
-    TWITTER_STATE_TABLE: ${env:TWITTER_STATE_TABLE}
+    BUZZWORD_AGGREGATES_TABLE: ${env:BUZZWORD_AGGREGATES_TABLE}
 
 package:
- exclude:
-   - ./**
- include:
-   - ./bin/**
+  exclude:
+    - ./**
+  include:
+    - ./bin/**
 
 functions:
+  persist-__SERVERLESS_USER__:
+    handler: bin/persist
+    events:
+      - stream:
+          type: kinesis
+          arn: ${env:AWS_EVENT_STREAM_ARN_COLLECT_BUZZWORDS}
+          batchSize: 10
+          startingPosition: TRIM_HORIZON
+          enabled: true
+  readall-__SERVERLESS_USER__:
+    handler: bin/readall
+    events:
+      - http:
+          path: aggregate
+          method: get
   read-__SERVERLESS_USER__:
     handler: bin/read
     events:
       - http:
-          path: state
+          path: aggregate/{id}
           method: get
-  update-__SERVERLESS_USER__:
-    handler: bin/update
-    events:
-      - http:
-          path: state
-          method: put
-  delete-__SERVERLESS_USER__:
-    handler: bin/delete
-    events:
-      - http:
-          path: state
-          method: delete
+          request:
+            parameter:
+              paths:
+                name: true
 
 resources:
   Resources:
     DynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${env:TWITTER_STATE_TABLE}
+        TableName: ${env:BUZZWORD_AGGREGATES_TABLE}
         AttributeDefinitions:
-          - AttributeName: namespace
+          - AttributeName: buzzword_namespace
             AttributeType: S
           - AttributeName: version
             AttributeType: N
         KeySchema:
-          - AttributeName: namespace
+          - AttributeName: buzzword_namespace
             KeyType: HASH
           - AttributeName: version
             KeyType: RANGE
@@ -83,7 +89,7 @@ resources:
                 - dynamodb:PutItem
                 - dynamodb:Query
                 - dynamodb:Scan
-              Resource: arn:aws:dynamodb:eu-central-1:${env:AWS_ACCOUNT_ID}:table/${env:TWITTER_STATE_TABLE}
+              Resource: arn:aws:dynamodb:eu-central-1:${env:AWS_ACCOUNT_ID}:table/${env:BUZZWORD_AGGREGATES_TABLE}
         Roles:
           - Ref: IamRoleLambdaExecution
 

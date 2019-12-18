@@ -11,7 +11,7 @@ deploy: build
 	sed -e 's/__SERVERLESS_USER__/'${SERVERLESS_USER}'/g' < serverless-template.yml > serverless.yml
 	sls deploy --verbose
 
-init: init-state init-secrets
+init: init-state init-secrets init-stream
 
 init-state:
 	aws s3 ls s3://${TWITTER_STATE_BUCKET}/ >/dev/null 2>/dev/null ; \
@@ -39,3 +39,9 @@ init-secrets:
 		aws secretsmanager create-secret --name sls-demo-${SERVERLESS_USER}/twitter/consumer-secret --secret-string ${TWITTER_CONSUMER_SECRET} ; \
 	fi
 
+init-stream:
+	aws kinesis describe-stream --stream-name ${AWS_EVENT_STREAM_NAME_POLL_TWEET} >/dev/null 2>/dev/null ; \
+	if [ $$? -eq 255 ]; then \
+		aws kinesis create-stream --stream-name ${AWS_EVENT_STREAM_NAME_POLL_TWEET} --shard-count 1 ; \
+		aws kinesis add-tags-to-stream --stream-name ${AWS_EVENT_STREAM_NAME_POLL_TWEET} --tags project=sls-demo-${SERVERLESS_USER},owner=${SERVERLESS_USER}
+	fi

@@ -19,13 +19,13 @@ type AwsDynamoDbStateStorer struct {
 }
 
 type AwsDynamoDbItem struct {
-	Namespace string
-	Version   int
-	State     State
+	Namespace string `json:"namespace"`
+	Version   int    `json:"version"`
+	State     State  `json:"state"`
 }
 
 func (as *AwsDynamoDbStateStorer) GetState() (State, error) {
-	svc, err := getDynamoDbService()
+	svc, err := NewDynamoDbService()
 	if err != nil {
 		return nil, err
 	}
@@ -36,22 +36,17 @@ func (as *AwsDynamoDbStateStorer) GetState() (State, error) {
 	if err != nil {
 		return nil, err
 	}
-	log.WithFields(log.Fields{
-		"state read from db": result,
-	}).Info("GetState() got from DynamoDB...")
 	item := AwsDynamoDbItem{}
 	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
 	if err != nil {
 		return nil, err
 	}
-	log.WithFields(log.Fields{
-		"state unmarshalling": item,
-	}).Info("GetState() got from DynamoDB...")
+	log.WithField("state unmarshalling", item).Info("GetState() got from DynamoDB...")
 	return item.State, nil
 }
 
 func (as *AwsDynamoDbStateStorer) SetState(state State) error {
-	svc, err := getDynamoDbService()
+	svc, err := NewDynamoDbService()
 	if err != nil {
 		return err
 	}
@@ -84,7 +79,7 @@ func (as *AwsDynamoDbStateStorer) SetState(state State) error {
 }
 
 func (as *AwsDynamoDbStateStorer) DeleteState() error {
-	svc, err := getDynamoDbService()
+	svc, err := NewDynamoDbService()
 	if err != nil {
 		return err
 	}
@@ -106,20 +101,12 @@ func NewAwsDynamoDbStateStorer(namespace string, version int) StateStorer {
 	}
 }
 
-func getDynamoDbService() (*dynamodb.DynamoDB, error) {
-	sess, err := NewAwsSession()
-	if err != nil {
-		return nil, err
-	}
-	return dynamodb.New(sess), nil
-}
-
 func createTableKey(namespace string, version int) TableKey {
 	return TableKey{
-		"Namespace": {
+		"namespace": {
 			S: aws.String(namespace),
 		},
-		"Version": {
+		"version": {
 			N: aws.String(strconv.Itoa(version)),
 		},
 	}
