@@ -18,6 +18,10 @@ generates statistics for buzzwords related to the original keywords. The statist
 processing state of the event stream are persited in a document store (DynamoDB). The Twitter
 API keys are managed as secrets (SecretManager) and diagnoctic information is made available (CloudWatch).
 
+### Module: commons
+
+Provides common packages.
+
 ### Module: poll-tweets
 
 Polls the tweets from Twitter. For more information see: [./poll-tweet/README.md](./poll-tweet/README.md)
@@ -43,6 +47,12 @@ sudo npm install serverless -g
 ```
 
 ### Installation of AWS CLI
+
+```(sh)
+tbd.
+```
+
+### Installation of Terraform
 
 ```(sh)
 tbd.
@@ -119,11 +129,16 @@ Unfortunately, `sls config` cannot set the AWS region, so we run the AWS CLI and
 aws configure
 ```
 
+## Create Infrastructure
+
+The infrastructure is created with Terraform and controlled through the respective
+Makefiles. The respective Makefile targets are `infra-init` and `infra-apply`.
+
 ## Build and Deplyoment
 
 ### Commons Package
 
-Make sure you have sources the basic environment with `source setenv-dev.sh` then `cd ./commons`. Initiialise
+Make sure you have sources the basic environment with `source setenv-dev.sh` then `cd ./commons`. Initialise
 common resources with:
 
 ```(sh)
