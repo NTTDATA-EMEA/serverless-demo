@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	//	POLL_TWEET_STATE_MODULE = "poll-tweet-state"
+	POLL_TWEET_STATE_MODULE   = "poll-tweet-state"
 	PERSIST_AGGREGATES_MODULE = "persist-aggregates"
 )
 

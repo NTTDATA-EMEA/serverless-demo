@@ -43,3 +43,9 @@ functions:
             parameter:
               paths:
                 name: true
+  state-read-api-__SERVERLESS_USER__:
+    handler: bin/state-read-api
+    events:
+      - http:
+          path: state
+          method: get

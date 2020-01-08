@@ -4,6 +4,7 @@ build:
 	go mod download
 	env GOOS=linux go build -ldflags="-s -w" -o bin/agg-readall-api agg-readall-api/*.go
 	env GOOS=linux go build -ldflags="-s -w" -o bin/agg-read-api agg-read-api/*.go
+	env GOOS=linux go build -ldflags="-s -w" -o bin/state-read-api state-read-api/*.go
 
 clean:
 	rm -rf ./bin
