@@ -4,7 +4,9 @@ build:
 	go mod download
 	env GOOS=linux go build -ldflags="-s -w" -o bin/persist persist/*.go
 	env GOOS=linux go build -ldflags="-s -w" -o bin/readall readall/*.go
+	env GOOS=linux go build -ldflags="-s -w" -o bin/readall-api readall-api/*.go
 	env GOOS=linux go build -ldflags="-s -w" -o bin/read read/*.go
+	env GOOS=linux go build -ldflags="-s -w" -o bin/read-api read-api/*.go
 
 clean:
 	rm -rf ./bin

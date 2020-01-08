@@ -19,9 +19,14 @@ provider:
         - kinesis:GetRecords
         - kinesis:GetShardIterator
       Resource: ${env:AWS_EVENT_STREAM_ARN_COLLECT_BUZZWORDS}
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   environment:
     SERVERLESS_USER: ${env:SERVERLESS_USER}
     BUZZWORD_AGGREGATES_TABLE: ${env:BUZZWORD_AGGREGATES_TABLE}
+    SERVERLESS_STAGE: ${env:SERVERLESS_STAGE}
 
 package:
   exclude:
@@ -41,12 +46,16 @@ functions:
           enabled: true
   readall-__SERVERLESS_USER__:
     handler: bin/readall
+  readall-api-__SERVERLESS_USER__:
+    handler: bin/readall-api
     events:
       - http:
           path: aggregate
           method: get
   read-__SERVERLESS_USER__:
     handler: bin/read
+  read-api-__SERVERLESS_USER__:
+    handler: bin/read-api
     events:
       - http:
           path: aggregate/{id}
