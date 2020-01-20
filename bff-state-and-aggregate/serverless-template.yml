@@ -44,13 +44,13 @@ functions:
               paths:
                 name: true
   state-read-api-__SERVERLESS_USER__:
-    handler: bin/state-read-api
+    handler: bin/state-read-update-api
     events:
       - http:
           path: state
           method: get
   state-update-api-__SERVERLESS_USER__:
-    handler: bin/state-update-api
+    handler: bin/state-read-update-api
     events:
       - http:
           path: state

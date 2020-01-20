@@ -7,13 +7,13 @@ import (
 
 type Response events.APIGatewayProxyResponse
 
-func ResponseWithJson(body string) Response {
-	return Response{
+func ResponseWithJson(body string) (*Response, error) {
+	return &Response{
 		StatusCode:      http.StatusOK,
 		IsBase64Encoded: false,
 		Body:            body,
 		Headers: map[string]string{
 			"Content-Type": "application/json",
 		},
-	}
+	}, nil
 }
