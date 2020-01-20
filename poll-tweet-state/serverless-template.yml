@@ -43,6 +43,8 @@ functions:
       - http:
           path: state
           method: get
+  update-__SERVERLESS_USER__:
+    handler: bin/update
   update-api-__SERVERLESS_USER__:
     handler: bin/update-api
     events:

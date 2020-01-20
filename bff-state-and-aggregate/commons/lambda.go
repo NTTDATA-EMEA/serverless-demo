@@ -2,6 +2,7 @@ package commons
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/lambda"
@@ -25,7 +26,7 @@ func Invoke(mn string, fn string, payload interface{}) (*lambda.InvokeOutput, er
 		default:
 			p, err = json.Marshal(v)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("invoke.json.marshal error: %w", err)
 			}
 		}
 	}
@@ -38,10 +39,14 @@ func Invoke(mn string, fn string, payload interface{}) (*lambda.InvokeOutput, er
 	user := os.Getenv("SERVERLESS_USER")
 	stg := os.Getenv("SERVERLESS_STAGE")
 	name := mn + "-" + user + "-" + stg + "-" + fn + "-" + user
+	log.Infof("Invoking lambda '%s' with payload %t", name, p)
 	result, err := client.Invoke(&lambda.InvokeInput{
 		FunctionName:   aws.String(name),
 		InvocationType: aws.String(lambda.InvocationTypeRequestResponse),
 		Payload:        p,
 	})
+	if err != nil {
+		return nil, fmt.Errorf("invoke.client.invoke error: %w", err)
+	}
 	return result, nil
 }
