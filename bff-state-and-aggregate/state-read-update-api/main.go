@@ -16,6 +16,7 @@ func Handler(req events.APIGatewayProxyRequest) (commons.Response, error) {
 	var res *commons.Response
 	switch req.HTTPMethod {
 	case "GET":
+		log.Infof("Got request to read state...")
 		result, err := commons.Invoke(commons.POLL_TWEET_STATE_MODULE, "read", nil)
 		if err != nil {
 			return commons.Response{StatusCode: http.StatusInternalServerError}, fmt.Errorf("handler.commons.invoke error: %w", err)
@@ -25,7 +26,7 @@ func Handler(req events.APIGatewayProxyRequest) (commons.Response, error) {
 			return commons.Response{StatusCode: http.StatusInternalServerError}, fmt.Errorf("handler.commons.invoke error: %w", err)
 		}
 	case "PUT":
-		log.Infof("Got request to persist: %v", req.Body)
+		log.Infof("Got request to persist state: %v", req.Body)
 		var state services.State
 		if err := json.Unmarshal([]byte(req.Body), &state); err != nil {
 			return commons.Response{StatusCode: 404}, fmt.Errorf("handler.json.unmarshal error: %w", err)
