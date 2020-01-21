@@ -27,25 +27,25 @@ package:
     - ./bin/**
 
 functions:
-  agg-readall-api-__SERVERLESS_USER__:
+  agg-readall-api:
     handler: bin/agg-readall-api
     events:
       - http:
           path: aggregate
           method: get
-  agg-read-api-__SERVERLESS_USER__:
+  agg-read-api:
     handler: bin/agg-read-api
     events:
       - http:
           path: aggregate/{id}
           method: get
-  state-read-api-__SERVERLESS_USER__:
+  state-read-api:
     handler: bin/state-read-update-api
     events:
       - http:
           path: state
           method: get
-  state-update-api-__SERVERLESS_USER__:
+  state-update-api:
     handler: bin/state-read-update-api
     events:
       - http:
