@@ -35,28 +35,10 @@ package:
    - ./bin/**
 
 functions:
-  read-__SERVERLESS_USER__:
+  read:
     handler: bin/read
-  read-api-__SERVERLESS_USER__:
-    handler: bin/read-api
-    events:
-      - http:
-          path: state
-          method: get
-  update-__SERVERLESS_USER__:
+  update:
     handler: bin/update
-  update-api-__SERVERLESS_USER__:
-    handler: bin/update-api
-    events:
-      - http:
-          path: state
-          method: put
-  delete-api-__SERVERLESS_USER__:
-    handler: bin/delete-api
-    events:
-      - http:
-          path: state
-          method: delete
 
 resources:
   Resources:
