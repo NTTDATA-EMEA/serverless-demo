@@ -2,7 +2,7 @@
 
 Defines one lambda function which aggregates tweets got from one Kinesis stream and publish the aggregates into another stream.
 
-## Fuction Overview
+## Function Overview
 
 ### Collect Function
 
