@@ -8,7 +8,7 @@ provider:
   memorySize: 128
   stage: ${env:SERVERLESS_STAGE}
   region: ${env:AWS_REGION}
-  tags:
+  stackTags:
     project: sls-demo-__SERVERLESS_USER__
     owner: __SERVERLESS_USER__
   iamRoleStatements:
@@ -61,7 +61,7 @@ functions:
 
 resources:
   Resources:
-    workStream:
+    eventStreamPollTweet:
       Type: AWS::Kinesis::Stream
       Properties:
         Name: ${env:AWS_EVENT_STREAM_NAME_POLL_TWEET}

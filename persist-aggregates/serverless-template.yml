@@ -8,7 +8,7 @@ provider:
   memorySize: 128
   stage: ${env:SERVERLESS_STAGE}
   region: ${env:AWS_REGION}
-  tags:
+  stackTags:
     project: sls-demo-__SERVERLESS_USER__
     owner: __SERVERLESS_USER__
   iamRoleStatements:

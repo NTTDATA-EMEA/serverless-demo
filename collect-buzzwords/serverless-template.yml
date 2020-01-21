@@ -8,7 +8,7 @@ provider:
   memorySize: 128
   stage: ${env:SERVERLESS_STAGE}
   region: ${env:AWS_REGION}
-  tags:
+  stackTags:
     project: sls-demo-__SERVERLESS_USER__
     owner: __SERVERLESS_USER__
   iamRoleStatements:
@@ -36,7 +36,7 @@ package:
    - ./bin/**
 
 functions:
-  collect-__SERVERLESS_USER__:
+  collect:
     handler: bin/collect
     environment:
       AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME_COLLECT_BUZZWORDS}
