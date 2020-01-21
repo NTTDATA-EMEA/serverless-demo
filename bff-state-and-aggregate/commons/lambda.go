@@ -38,7 +38,7 @@ func Invoke(mn string, fn string, payload interface{}) (*lambda.InvokeOutput, er
 	})
 	user := os.Getenv("SERVERLESS_USER")
 	stg := os.Getenv("SERVERLESS_STAGE")
-	name := mn + "-" + user + "-" + stg + "-" + fn + "-" + user
+	name := mn + "-" + user + "-" + stg + "-" + fn
 	log.Infof("Invoking lambda '%s' with payload %t", name, p)
 	result, err := client.Invoke(&lambda.InvokeInput{
 		FunctionName:   aws.String(name),
