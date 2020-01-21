@@ -1,11 +1,12 @@
 package services
 
 import (
-	"encoding/json"
-
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/kinesis"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // AwsEventPublisher implements the EventPublisher interface
@@ -20,26 +21,29 @@ func NewAwsEventPublisher(streamName string) EventPublisher {
 	}
 }
 
-// PublishEvent is a dummy implementation just logging the event
-func (ep *AwsEventPublisher) PublishEvent(event Event) error {
-	ep.PublishEvents([]Event{event})
-	return nil
+func (ep *AwsEventPublisher) PublishEvent(event EventJsoner) error {
+	return ep.PublishEvents([]EventJsoner{event})
 }
 
-// PublishEvents is a dummy implementation just logging the events
-func (ep *AwsEventPublisher) PublishEvents(events []Event) error {
-	var records []*kinesis.PutRecordsRequestEntry
-	for i := range events {
-		json, err := json.Marshal(events[i])
+func (ep *AwsEventPublisher) PublishEvents(events []EventJsoner) error {
+	records := make([]*kinesis.PutRecordsRequestEntry, len(events))
+	for i, event := range events {
+		// jsn, err := json.Marshal(events[i])
+		jsn, err := event.Marshal()
 		if err != nil {
 			return err
 		}
-		records = append(records, &kinesis.PutRecordsRequestEntry{
-			Data:         json,
-			PartitionKey: aws.String(events[i].Shard),
-		})
+		records[i] = &kinesis.PutRecordsRequestEntry{
+			Data:         jsn,
+			PartitionKey: aws.String(event.GetPartitionKey()),
+		}
+		log.Info(fmt.Sprintf("%s", jsn))
 	}
-	svc := kinesis.New(session.New())
+	s, err := session.NewSession()
+	if err != nil {
+		return err
+	}
+	svc := kinesis.New(s)
 	if _, err := svc.PutRecords(&kinesis.PutRecordsInput{
 		Records:    records,
 		StreamName: aws.String(ep.StreamName),

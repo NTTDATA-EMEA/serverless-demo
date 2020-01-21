@@ -1,26 +1,14 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
-
-service: poll-tweet-__SERVERLESS_USER__ 
+service: poll-tweet-__SERVERLESS_USER__
 
 frameworkVersion: ">=1.28.0 <2.0.0"
 
 provider:
   name: aws
   runtime: go1.x
+  memorySize: 128
   stage: ${env:SERVERLESS_STAGE}
   region: ${env:AWS_REGION}
-  tags:
+  stackTags:
     project: sls-demo-__SERVERLESS_USER__
     owner: __SERVERLESS_USER__
   iamRoleStatements:
@@ -37,7 +25,14 @@ provider:
         - kinesis:PutRecord
         - kinesis:PutRecords
         - kinesis:GetShardIterator
-      Resource: ${env:AWS_EVENT_STREAM_ARN}
+      Resource: ${env:AWS_EVENT_STREAM_ARN_POLL_TWEET}
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:Query
+        - dynamodb:Scan
+      Resource: arn:aws:dynamodb:${env:AWS_REGION}:${env:AWS_ACCOUNT_ID}:table/${env:TWITTER_STATE_TABLE}
 
 package:
  exclude:
@@ -46,17 +41,28 @@ package:
    - ./bin/**
 
 functions:
-  poll-__SERVERLESS_USER__:
+  poll:
     handler: bin/poll
     memorySize: 128
     environment:
+      SERVERLESS_USER: ${env:SERVERLESS_USER}
       TWITTER_ACCESS_TOKEN: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/access-token~true}
       TWITTER_ACCESS_SECRET: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/access-secret~true}
       TWITTER_CONSUMER_KEY: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/consumer-key~true}
       TWITTER_CONSUMER_SECRET: ${ssm:/aws/reference/secretsmanager/sls-demo-__SERVERLESS_USER__/twitter/consumer-secret~true}
-      AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME}
+      AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME_POLL_TWEET}
       TWITTER_STATE_BUCKET: ${env:TWITTER_STATE_BUCKET}
       TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
       TWITTER_QUERY_TIMEOUT_SEC: ${env:TWITTER_QUERY_TIMEOUT_SEC}
+      TWITTER_STATE_TYPE: ${env:TWITTER_STATE_TYPE}
+      TWITTER_STATE_TABLE: ${env:TWITTER_STATE_TABLE}
     events:
-      - schedule: rate(5 minutes)
+      - schedule: rate(1 minute)
+
+resources:
+  Resources:
+    eventStreamPollTweet:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: ${env:AWS_EVENT_STREAM_NAME_POLL_TWEET}
+        ShardCount: 1

@@ -3,14 +3,14 @@ package main
 import (
 	"errors"
 	"fmt"
+	"github.com/dghubble/go-twitter/twitter"
+	"github.com/dghubble/oauth1"
+	"github.com/okoeth/serverless-demo/commons/pkg/services"
+
 	"os"
 	"strconv"
 	"time"
 
-	"github.com/dghubble/go-twitter/twitter"
-	"github.com/dghubble/oauth1"
-
-	"github.com/okoeth/serverless-demo/commons/pkg/services"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -132,22 +132,32 @@ func PollTweets(query string, sinceID int64) (*TwitterSearchResults, error) {
 // PublishTweets sends tweets via event publisher
 func PublishTweets(ep services.EventPublisher, tweets []twitter.Tweet) error {
 	log.Info("PublishTweets started...")
-	var events []services.Event
-	for _, tweet := range tweets {
+	events := make([]PollEvent, len(tweets))
+	for i, tweet := range tweets {
 		tm, err := time.Parse(TwitterTimeLayout, tweet.CreatedAt)
 		if err != nil {
 			return err
 		}
-		events = append(events, services.Event{
-			ID:        string(tweet.ID),
-			Shard:     tweet.Source,
-			Timestamp: tm,
-			Source:    "Poll-Tweet",
-			EventType: "Tweet",
-			Payload:   tweet,
-		})
+		events[i] = PollEvent{
+			EventEnvelope: services.EventEnvelope{
+				Event:     services.PollTweetRunQuery,
+				Timestamp: tm,
+			},
+			Subject: PollEventSubject{
+				Buzzword:     tweet.Source,
+				PartitionKey: tweet.Source,
+			},
+			Object: PollEventObject{
+				TweetId:   tweet.ID,
+				TweetText: tweet.Text,
+			},
+		}
 	}
-	if err := ep.PublishEvents(events); err != nil {
+	ejsn := make([]services.EventJsoner, len(events))
+	for i := range events {
+		ejsn[i] = &events[i]
+	}
+	if err := ep.PublishEvents(ejsn); err != nil {
 		return err
 	}
 	log.Info("PublishTweets finished...")

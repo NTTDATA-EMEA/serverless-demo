@@ -26,18 +26,24 @@ func makeError(requestID string, err error) (Response, error) {
 
 func Handler(request events.CloudWatchEvent) (Response, error) {
 	log.WithFields(log.Fields{"ID": request.ID}).Info("Event received")
+	var s services.StateStorer
+
+	/* Variant storing the state in S3
 	stateBucket := os.Getenv("TWITTER_STATE_BUCKET")
 	if stateBucket == "" {
 		return makeError(request.ID, errors.New(
-			"Variable TWITTER_STATE_BUCKET not defined. Try export TWITTER_STATE_BUCKET=<bucket-name>"))
+			"environment variable TWITTER_STATE_BUCKET is not defined"))
 
 	}
 	stateFile := os.Getenv("TWITTER_STATE_FILE")
 	if stateFile == "" {
 		return makeError(request.ID, errors.New(
-			"Variable TWITTER_STATE_FILE not defined. Try export TWITTER_STATE_FILE=<file-name>"))
+			"environment variable TWITTER_STATE_FILE is not defined"))
 	}
-	s := services.NewAwsStateStorer(stateBucket, stateFile)
+	s = services.NewAwsStateStorer(stateBucket, stateFile)
+	*/
+
+	s = services.NewAwsDynamoDbStateStorer(os.Getenv("SERVERLESS_USER"), 1)
 	tweets, err := PollAllTweets(s)
 	if err != nil {
 		return makeError(request.ID, err)
@@ -49,7 +55,7 @@ func Handler(request events.CloudWatchEvent) (Response, error) {
 		streamName := os.Getenv("AWS_EVENT_STREAM_NAME")
 		if streamName == "" {
 			return makeError(request.ID, errors.New(
-				"Variable AWS_EVENT_STREAM_NAME not defined. Try export AWS_EVENT_STREAM_NAME=<stream-name>"))
+				"environment variable AWS_EVENT_STREAM_NAME is not defined"))
 		}
 		ep := services.NewAwsEventPublisher(streamName)
 		if err := PublishTweets(ep, tweets); err != nil {

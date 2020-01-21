@@ -17,20 +17,14 @@ func getEventPublishers() []EventPublisher {
 	return eventPublishers
 }
 
-func getTestEvent() Event {
-	return Event{
-		ID:        "TEST-ID",
-		Shard:     "SHARD1",
-		Timestamp: time.Now(),
-		Source:    "TEST",
-		EventType: "TEST-EVENT",
-		Payload:   []string{"Hello", "World"},
-	}
-}
-
 func TestEventPublisher(t *testing.T) {
 	for _, eventPublisher := range getEventPublishers() {
-		if err := eventPublisher.PublishEvent(getTestEvent()); err != nil {
+		if err := eventPublisher.PublishEvent(EventEnvelope{
+			Event:     PollTweetRunQuery,
+			Timestamp: time.Time{},
+			Subject:   EventSubject{},
+			Object:    EventObject{},
+		}); err != nil {
 			t.Errorf("Error publishing event: %s", err.Error())
 		}
 	}

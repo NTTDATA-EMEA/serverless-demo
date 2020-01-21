@@ -1,6 +1,6 @@
-service: poll-tweet-state-__SERVERLESS_USER__
+service: persist-aggregates-__SERVERLESS_USER__
 
-frameworkVersion: ">=1.28.0 <2.0.0"
+frameworkVersion: '>=1.28.0 <2.0.0'
 
 provider:
   name: aws
@@ -14,45 +14,54 @@ provider:
   iamRoleStatements:
     - Effect: Allow
       Action:
-        - s3:PutObject
-        - s3:GetObject
-      Resource: "arn:aws:s3:::${env:TWITTER_STATE_BUCKET}/*"
+        - kinesis:DescribeStream
+        - kinesis:DescribeSummary
+        - kinesis:GetRecords
+        - kinesis:GetShardIterator
+      Resource: ${env:AWS_EVENT_STREAM_ARN_COLLECT_BUZZWORDS}
     - Effect: Allow
       Action:
         - lambda:InvokeFunction
       Resource: "*"
   environment:
     SERVERLESS_USER: ${env:SERVERLESS_USER}
-    TWITTER_STATE_BUCKET: ${env:TWITTER_STATE_BUCKET}
-    TWITTER_STATE_FILE: ${env:TWITTER_STATE_FILE}
-    TWITTER_STATE_TYPE: ${env:TWITTER_STATE_TYPE}
-    TWITTER_STATE_TABLE: ${env:TWITTER_STATE_TABLE}
+    BUZZWORD_AGGREGATES_TABLE: ${env:BUZZWORD_AGGREGATES_TABLE}
+    SERVERLESS_STAGE: ${env:SERVERLESS_STAGE}
 
 package:
- exclude:
-   - ./**
- include:
-   - ./bin/**
+  exclude:
+    - ./**
+  include:
+    - ./bin/**
 
 functions:
+  persist:
+    handler: bin/persist
+    events:
+      - stream:
+          type: kinesis
+          arn: ${env:AWS_EVENT_STREAM_ARN_COLLECT_BUZZWORDS}
+          batchSize: 10
+          startingPosition: TRIM_HORIZON
+          enabled: true
+  readall:
+    handler: bin/readall
   read:
     handler: bin/read
-  update:
-    handler: bin/update
 
 resources:
   Resources:
     DynamoDbTable:
       Type: AWS::DynamoDB::Table
       Properties:
-        TableName: ${env:TWITTER_STATE_TABLE}
+        TableName: ${env:BUZZWORD_AGGREGATES_TABLE}
         AttributeDefinitions:
-          - AttributeName: namespace
+          - AttributeName: buzzword_namespace
             AttributeType: S
           - AttributeName: version
             AttributeType: N
         KeySchema:
-          - AttributeName: namespace
+          - AttributeName: buzzword_namespace
             KeyType: HASH
           - AttributeName: version
             KeyType: RANGE
@@ -73,7 +82,7 @@ resources:
                 - dynamodb:PutItem
                 - dynamodb:Query
                 - dynamodb:Scan
-              Resource: arn:aws:dynamodb:${env:AWS_REGION}:${env:AWS_ACCOUNT_ID}:table/${env:TWITTER_STATE_TABLE}
+              Resource: arn:aws:dynamodb:${env:AWS_REGION}:${env:AWS_ACCOUNT_ID}:table/${env:BUZZWORD_AGGREGATES_TABLE}
         Roles:
           - Ref: IamRoleLambdaExecution
 

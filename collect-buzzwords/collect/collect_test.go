@@ -18,32 +18,35 @@ import (
 
 type CollectBuzzwordsTestSuite struct {
 	suite.Suite
-	target       BuzzwordCounts
-	same         BuzzwordCounts
-	tweet        twitter.Tweet
-	anotherTweet twitter.Tweet
-	empty        BuzzwordCounts
-	other        BuzzwordCounts
-	testEvents   []services.Event
+	target               BuzzwordCounts
+	same                 BuzzwordCounts
+	tweet                twitter.Tweet
+	tweetText            string
+	tweetBuzzword        string
+	anotherTweetText     string
+	anotherTweetBuzzword string
+	empty                BuzzwordCounts
+	other                BuzzwordCounts
+	testEvents           []PollEvent
 }
 
 func (suite *CollectBuzzwordsTestSuite) SetupTest() {
 	suite.target = BuzzwordCounts{
 		Keyword: "#cloud",
 		Buzzwords: map[string]*BuzzwordCount{
-			"#serverless": &BuzzwordCount{
+			"#serverless": {
 				Keyword:    "#cloud",
 				Buzzword:   "#serverless",
 				Count:      2,
 				LastUpdate: time.Now(),
 			},
-			"#cloudfoundry": &BuzzwordCount{
+			"#cloudfoundry": {
 				Keyword:    "#cloud",
 				Buzzword:   "#cloudfoundry",
 				Count:      3,
 				LastUpdate: time.Now(),
 			},
-			"#kubernetes": &BuzzwordCount{
+			"#kubernetes": {
 				Keyword:    "#cloud",
 				Buzzword:   "#kubernetes",
 				Count:      2,
@@ -55,19 +58,19 @@ func (suite *CollectBuzzwordsTestSuite) SetupTest() {
 	suite.same = BuzzwordCounts{
 		Keyword: "#cloud",
 		Buzzwords: map[string]*BuzzwordCount{
-			"#serverless": &BuzzwordCount{
+			"#serverless": {
 				Keyword:    "#cloud",
 				Buzzword:   "#serverless",
 				Count:      2,
 				LastUpdate: time.Now(),
 			},
-			"#cloudfoundry": &BuzzwordCount{
+			"#cloudfoundry": {
 				Keyword:    "#cloud",
 				Buzzword:   "#cloudfoundry",
 				Count:      3,
 				LastUpdate: time.Now(),
 			},
-			"#kubernetes": &BuzzwordCount{
+			"#kubernetes": {
 				Keyword:    "#cloud",
 				Buzzword:   "#kubernetes",
 				Count:      4,
@@ -76,15 +79,11 @@ func (suite *CollectBuzzwordsTestSuite) SetupTest() {
 		},
 	}
 
-	suite.tweet = twitter.Tweet{
-		Text:   "This is #cloud #public #serverless # for all public",
-		Source: "#cloud",
-	}
+	suite.tweetText = "This is #cloud #public #serverless # for all public"
+	suite.tweetBuzzword = "#cloud"
 
-	suite.anotherTweet = twitter.Tweet{
-		Text:   "This is #ai #machinelearning #serverless # for all public",
-		Source: "#ai",
-	}
+	suite.anotherTweetText = "This is #ai #machinelearning #serverless # for all public"
+	suite.anotherTweetBuzzword = "#ai"
 
 	suite.empty = BuzzwordCounts{
 		Keyword:   "#cloud",
@@ -96,22 +95,22 @@ func (suite *CollectBuzzwordsTestSuite) SetupTest() {
 		Buzzwords: make(map[string]*BuzzwordCount),
 	}
 
-	suite.testEvents = []services.Event{
+	suite.testEvents = []PollEvent{
 		{
-			ID:        "1",
-			Shard:     "1",
-			Timestamp: time.Now(),
-			Source:    "Poll-Tweet",
-			EventType: "Tweet",
-			Payload:   &suite.tweet,
+			EventEnvelope: services.EventEnvelope{
+				Event:     services.CollectBuzzwordsAggregated,
+				Timestamp: time.Time{},
+			},
+			Subject: PollEventSubject{},
+			Object:  PollEventObject{},
 		},
 		{
-			ID:        "2",
-			Shard:     "2",
-			Timestamp: time.Now(),
-			Source:    "Poll-Tweet",
-			EventType: "Tweet",
-			Payload:   &suite.anotherTweet,
+			EventEnvelope: services.EventEnvelope{
+				Event:     services.CollectBuzzwordsAggregated,
+				Timestamp: time.Time{},
+			},
+			Subject: PollEventSubject{},
+			Object:  PollEventObject{},
 		},
 	}
 }
@@ -130,30 +129,6 @@ func (suite *CollectBuzzwordsTestSuite) TestNewBuzzwordCounts() {
 	}
 }
 
-func (suite *CollectBuzzwordsTestSuite) TestAddSameBuzzwordCounts() {
-	t := suite.T()
-	AddBuzzwordCounts(&suite.target, &suite.same)
-	if len(suite.target.Buzzwords) != 3 {
-		t.Errorf("Target structure incomplete")
-	}
-}
-
-func (suite *CollectBuzzwordsTestSuite) TestAddOtherBuzzwordCounts() {
-	t := suite.T()
-	AddBuzzwordCounts(&suite.target, &suite.other)
-	if len(suite.target.Buzzwords) != 3 {
-		t.Errorf("Target structure changed")
-	}
-}
-
-func (suite *CollectBuzzwordsTestSuite) TestAddToEmptyBuzzwordCounts() {
-	t := suite.T()
-	AddBuzzwordCounts(&suite.empty, &suite.same)
-	if len(suite.empty.Buzzwords) != 3 {
-		t.Errorf("Target structure incomplete")
-	}
-}
-
 func (suite *CollectBuzzwordsTestSuite) TestCollectBuzzwords() {
 	t := suite.T()
 	b := CollectBuzzwords(suite.testEvents)
@@ -168,7 +143,7 @@ func (suite *CollectBuzzwordsTestSuite) TestCollectBuzzwords() {
 
 func (suite *CollectBuzzwordsTestSuite) TestCollectBuzzwordCounts() {
 	t := suite.T()
-	CollectBuzzwordCounts(&suite.tweet, &suite.empty)
+	CollectBuzzwordCounts(suite.tweetText, suite.tweetBuzzword, &suite.empty)
 	if len(suite.empty.Buzzwords) != 2 {
 		t.Errorf("Buzzword count in total incorrect")
 	}
@@ -217,17 +192,12 @@ func (suite *CollectBuzzwordsTestSuite) TestProcessEvents() {
 			t.Logf("Millies behind: %d", r.MillisBehindLatest)
 			if len(r.Records) > 0 {
 				for i := range r.Records {
-					var event services.Event
+					var event PollEvent
 					if err := json.Unmarshal(r.Records[i].Data, &event); err != nil {
 						t.Errorf("Error unmarshalling event: %s", err.Error())
 						return
 					}
-					t.Logf("Event: %+v\n", event)
-					tweet, err := CreateTweetFromMap(event.Payload.(map[string]interface{}))
-					if err != nil {
-						t.Errorf("Error creating tweet: %s", err.Error())
-					}
-					t.Logf("Tweet: %+v\n", tweet)
+					t.Logf("Event: %+v\n", event.Object.TweetText)
 				}
 			}
 			si = r.NextShardIterator

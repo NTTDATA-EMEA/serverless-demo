@@ -1,27 +1,25 @@
 package main
 
 import (
-	"encoding/json"
+	"fmt"
+	"github.com/okoeth/serverless-demo/commons/pkg/services"
+	log "github.com/sirupsen/logrus"
 	"strings"
 	"time"
-
-	"github.com/okoeth/serverless-demo/commons/pkg/services"
-
-	"github.com/dghubble/go-twitter/twitter"
 )
 
 // BuzzwordCounts holds the buzzwords for a single keyword
 type BuzzwordCounts struct {
-	Keyword   string
-	Buzzwords map[string]*BuzzwordCount
+	Keyword   string                    `json:"keyword"`
+	Buzzwords map[string]*BuzzwordCount `json:"buzzwords"`
 }
 
 // BuzzwordCount holds the counts for a single keyword/buzzword combo
 type BuzzwordCount struct {
-	Keyword    string
-	Buzzword   string
-	Count      int
-	LastUpdate time.Time
+	Keyword    string    `json:"keyword"`
+	Buzzword   string    `json:"buzzword"`
+	Count      int       `json:"count"`
+	LastUpdate time.Time `json:"last_update"`
 }
 
 // NewBuzzwordCounts creates new set of buzzword counts
@@ -33,26 +31,27 @@ func NewBuzzwordCounts(keyword string) *BuzzwordCounts {
 }
 
 // CollectBuzzwords extracts payload from events and calls buzzword collector
-func CollectBuzzwords(events []services.Event) map[string]*BuzzwordCounts {
+func CollectBuzzwords(events []PollEvent) map[string]*BuzzwordCounts {
 	b := make(map[string]*BuzzwordCounts)
 	for i := range events {
-		tweet := events[i].Payload.(*twitter.Tweet)
-		if _, ok := b[tweet.Source]; !ok {
-			b[tweet.Source] = NewBuzzwordCounts(tweet.Source)
+		ttx := events[i].Object.TweetText
+		bw := events[i].Subject.Buzzword
+		if _, ok := b[bw]; !ok {
+			b[bw] = NewBuzzwordCounts(bw)
 		}
-		CollectBuzzwordCounts(tweet, b[tweet.Source])
+		CollectBuzzwordCounts(ttx, bw, b[bw])
 	}
 	return b
 }
 
 // CollectBuzzwordCounts extracts buzzwords (i.e. hashtags) from tweets and increments counters
-func CollectBuzzwordCounts(tweet *twitter.Tweet, bc *BuzzwordCounts) {
-	if tweet.Source != bc.Keyword {
+func CollectBuzzwordCounts(tw string, bw string, bc *BuzzwordCounts) {
+	if bw != bc.Keyword {
 		return
 	}
-	words := strings.Fields(tweet.Text)
+	words := strings.Fields(tw)
 	for _, word := range words {
-		if strings.HasPrefix(word, "#") && len(word) > 1 && word != tweet.Source {
+		if strings.HasPrefix(word, "#") && len(word) > 1 && strings.ToLower(word) != strings.ToLower(bw) {
 			if _, ok := bc.Buzzwords[word]; !ok {
 				bc.Buzzwords[word] = &BuzzwordCount{
 					Keyword:    bc.Keyword,
@@ -66,33 +65,34 @@ func CollectBuzzwordCounts(tweet *twitter.Tweet, bc *BuzzwordCounts) {
 	}
 }
 
-// AddBuzzwordCounts adds the counts from source to target
-func AddBuzzwordCounts(target, source *BuzzwordCounts) {
-	if target.Keyword != source.Keyword {
-		return
-	}
-	for k := range source.Buzzwords {
-		if _, ok := target.Buzzwords[k]; !ok {
-			target.Buzzwords[k] = &BuzzwordCount{
-				Keyword:    source.Keyword,
-				Buzzword:   k,
-				Count:      0,
-				LastUpdate: time.Now(),
-			}
+// PublishCollectBuzzwordAggregates publishes events with aggregated values
+func PublishCollectBuzzwordAggregates(ep services.EventPublisher, cbs map[string]*BuzzwordCounts) error {
+	log.Info("PublishBuzzwordAggregates started...")
+	events := make([]CollectEvent, len(cbs))
+	i := 0
+	for k := range cbs {
+		events[i] = CollectEvent{
+			EventEnvelope: services.EventEnvelope{
+				Event:     services.CollectBuzzwordsAggregated,
+				Timestamp: time.Time{},
+			},
+			Subject: CollectEventSubject{PartitionKey: cbs[k].Keyword, Keyword: cbs[k].Keyword},
+			Object:  CollectEventObject{AggregatedBuzzwords: cbs[k]},
 		}
-		target.Buzzwords[k].Count += source.Buzzwords[k].Count
+		jsn, err := events[i].Marshal()
+		if err != nil {
+			return fmt.Errorf("publish-collect-buzzword-aggregates.marshal error: %w", err)
+		}
+		log.WithField("buzzword", fmt.Sprintf("%s", jsn)).Info("Marshalled Collect Event...")
+		i++
 	}
-}
-
-// CreateTweetFromMap re-marshals a generic map to a proper type
-func CreateTweetFromMap(m map[string]interface{}) (*twitter.Tweet, error) {
-	b, err := json.Marshal(m)
-	if err != nil {
-		return nil, err
+	ejsn := make([]services.EventJsoner, len(events))
+	for i := range events {
+		ejsn[i] = &events[i]
 	}
-	var t twitter.Tweet
-	if err := json.Unmarshal(b, &t); err != nil {
-		return nil, err
+	if err := ep.PublishEvents(ejsn); err != nil {
+		return fmt.Errorf("publish-collect-buzzword-aggregates.publish-events error: %w", err)
 	}
-	return &t, nil
+	log.Info("PublishBuzzwordAggregates finished...")
+	return nil
 }

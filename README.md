@@ -2,150 +2,34 @@
 
 This is a demo for serverless computing. The demo implements an event streaming / sourcing
 pattern using serverless components from AWS. The lock-in to AWS is controlled by the
-[Serverless.com](https://serverless.com) framework and also the APIs are wrapped by a
-[pkg/services](https://github.com/okoeth/serverless-demo/tree/master/commons/pkg/services) package,
-which provides also a local file-system based implementation for testing purposes (and the
-demonstration of independence from AWS).
+[Serverless.com](https://serverless.com) framework.
 
 ## Solution Overview
 
-![Diagram](https://drive.google.com/uc?authuser=0&id=1PxxyRGoLRru2y8I9RnnU0nVsQHXMdMlQ&export=download)
+![Picture](./pics/serverless-demo.png)
 
-The functionality implemented by the solution is rather simple: tweets with certain search
-keyword-based specification (S3) are queried by a function (Lambda) and published on an event stream (Kinesis).
-The event stream (Kinesis) drives another function (Lambda) which processes the events and
-generates statistics for buzzwords related to the original keywords. The statistics and the
-processing state of the event stream are persited in a document store (DynamoDB). The Twitter
-API keys are managed as secrets (SecretManager) and diagnoctic information is made available (CloudWatch).
+The provided solution queries over Twitter API tweets based on certain buzzwords (hashtags). 
+This query inside a lambda is run every minute by a scheduler. Received tweets are packaged as events an put into a Kinesis stream.
+See [./poll-tweet/README.md](./poll-tweet/README.md) for more.
 
-### Module: poll-tweets
+These events are collected and aggregated by another lambda. An aggregate consist of the core buzzword and sum of occurrences of other buzzwords in the relevant tweets.
+The aggregates are again package as events an put into a second Kinesis stream.
+See [./collect-buzzwords/README.md](./collect-buzzwords/README.md) for more.
 
-Polls the tweets from Twitter. For more information see: [./poll-tweet/README.md](./poll-tweet/README.md)
+The events with the aggregated values for latest batch are collected by a next lambda which makes 
+final aggregation with the already persisted data for each buzzword in DynamoDB.
+See [./persist-aggregates/README.md](./persist-aggregates/README.md) for more. 
 
-### Module: collect buzzwords
+The definition of the buzzwords for queries are stored as state in DynamoDB.
+See [./poll-tweet-state/README.md](./poll-tweet-state/README.md) for more.
 
-Builds a statistic for buzzwords. For more information see: [./collect-buzzwords/README.md](./collect-buzzwords/README.md)
+A specialized set of BFF (backend for frontend) lambdas allows an UI client to present data and update state if necessary.
+See [./bff-state-and-aggregate/README.md](./bff-state-and-aggregate/README.md)
 
-## Prerequisites
+The solution follows one of the core principles when building serverless applications named SoC (separation of concerns).
+Each lambda functions realize only one tasks. These tasks are grouped in modules described shortly below.
 
-The development environment requires a number of packages which are provided in convenient Dockerfile.
-For more information see: [./collect-buzzwords/README.md](./collect-buzzwords/README.md)
-
-### Basic Installations
-
-* Golang
-* Dep
-
-### Installation of Serverless Framework
-
-```(sh)
-sudo npm install serverless -g
-```
-
-### Installation of AWS CLI
-
-```(sh)
-tbd.
-```
-
-### Using a containerised development environment
-
-To build the containerised development environment run:
-
-```(sh)
-docker build -t okoeth/serverless-demo-dev .
-```
-
-Run a developer shell with:
-
-```(sh)
-docker run -t -i -v "$PWD":/work -v "$HOME":/root --rm okoeth/serverless-demo-dev
-```
-
-### Setting the environment
-
-Set environment with:
-
-```(sh)
-cd /work
-source setenv-dev.sh
-```
-
-And make sure the AWS CLI has the proper profile enabled. For the initial set-up an AWS user
-dedicated to the serverless-demo should be created. (See below.)
-
-## Identity and Access Management
-
-We will be setting up a dedicated user for the sewrverless demo. We assume that in your current
-configuration you are running with an AWS profile that has sufficient privileges to execute
-the below IAM commands.
-
-### IAM Policy
-
-The AWS keys used in this demo shall be tied towards the `sls-demo-${SERVERLESS_USER}` user who is backed by a
-`sls-demo-${SERVERLESS_USER}-policy` policy. The details of the policy have been included
-[here](./serverless-demo-policy). The policy can be created with the following command:
-
-```(sh)
-aws iam create-policy --policy-name sls-demo-${SERVERLESS_USER}-policy --policy-document file://serverless-demo-policy.json
-```
-
-Then the user can be created with the following command:
-
-```(sh)
-aws iam create-user \
-  --user-name sls-demo-${SERVERLESS_USER}
-  
-aws iam attach-user-policy \
-  --user-name sls-demo-${SERVERLESS_USER} \
-  --policy-arn arn:aws:iam::${AWS_ACCOUNT_ID}:policy/sls-demo-${SERVERLESS_USER}-policy
-```
-
-Finally, create the access keys using:
-
-```(sh)
-aws iam create-access-key --user-name sls-demo-${SERVERLESS_USER}
-```
-
-The AWS keys are provided in an AWS profile configuration which is provides
-
-```(sh)
-sls config credentials --provider aws --key xxx --secret xxx --profile sls-demo-${SERVERLESS_USER}-dev
-```
-
-Unfortunately, `sls config` cannot set the AWS region, so we run the AWS CLI and provide èu-central-1` as region.
-
-```(sh)
-aws configure
-```
-
-## Build and Deplyoment
-
-### Commons Package
-
-Make sure you have sources the basic environment with `source setenv-dev.sh` then `cd ./commons`. Initiialise
-common resources with:
-
-```(sh)
-make init
-```
-
-Then resolve dependencies with
-
-```(sh)
-make build
-```
-
-Note that since we do not create a binary or shared library or anything for commons, there is no actual
-`go build` running.
-
-### Poll Package
-
-Then `cd ../poll-tweet`and create resources with:
-
-```(sh)
-make init
-```
+The Twitter API keys are managed as secrets by SecretManager and diagnostic information is made available using CloudWatch.
 
 ## Appendix A: Cheat Sheets
 

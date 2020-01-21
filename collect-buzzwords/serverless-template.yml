@@ -1,26 +1,14 @@
-# Welcome to Serverless!
-#
-# This file is the main config file for your service.
-# It's very minimal at this point and uses default values.
-# You can always add more config options for more control.
-# We've included some commented out config examples here.
-# Just uncomment any of them to get that config option.
-#
-# For full config options, check the docs:
-#    docs.serverless.com
-#
-# Happy Coding!
-
-service: collect-buzzwords-__SERVERLESS_USER__ 
+service: collect-buzzwords-__SERVERLESS_USER__
 
 frameworkVersion: ">=1.28.0 <2.0.0"
 
 provider:
   name: aws
   runtime: go1.x
+  memorySize: 128
   stage: ${env:SERVERLESS_STAGE}
   region: ${env:AWS_REGION}
-  tags:
+  stackTags:
     project: sls-demo-__SERVERLESS_USER__
     owner: __SERVERLESS_USER__
   iamRoleStatements:
@@ -30,7 +18,16 @@ provider:
         - kinesis:DescribeSummary
         - kinesis:GetRecords
         - kinesis:GetShardIterator
-      Resource: ${env:AWS_EVENT_STREAM_ARN}
+      Resource: ${env:AWS_EVENT_STREAM_ARN_POLL_TWEET}
+    - Effect: Allow
+      Action:
+        - kinesis:DescribeStream
+        - kinesis:DescribeSummary
+        - kinesis:GetRecords
+        - kinesis:PutRecord
+        - kinesis:PutRecords
+        - kinesis:GetShardIterator
+      Resource: ${env:AWS_EVENT_STREAM_ARN_COLLECT_BUZZWORDS}
 
 package:
  exclude:
@@ -39,12 +36,22 @@ package:
    - ./bin/**
 
 functions:
-  collect-__SERVERLESS_USER__:
+  collect:
     handler: bin/collect
+    environment:
+      AWS_EVENT_STREAM_NAME: ${env:AWS_EVENT_STREAM_NAME_COLLECT_BUZZWORDS}
     events:
       - stream:
           type: kinesis
-          arn: ${env:AWS_EVENT_STREAM_ARN}
+          arn: ${env:AWS_EVENT_STREAM_ARN_POLL_TWEET}
           batchSize: 10
           startingPosition: TRIM_HORIZON
           enabled: true
+
+resources:
+  Resources:
+    eventStreamCollectBuzzwords:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: ${env:AWS_EVENT_STREAM_NAME_COLLECT_BUZZWORDS}
+        ShardCount: 1
