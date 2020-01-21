@@ -47,3 +47,11 @@ functions:
           batchSize: 10
           startingPosition: TRIM_HORIZON
           enabled: true
+
+resources:
+  Resources:
+    eventStreamCollectBuzzwords:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: ${env:AWS_EVENT_STREAM_NAME_COLLECT_BUZZWORDS}
+        ShardCount: 1
