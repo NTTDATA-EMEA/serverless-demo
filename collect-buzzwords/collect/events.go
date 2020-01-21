@@ -12,8 +12,8 @@ type CollectEvent struct {
 }
 
 type CollectEventSubject struct {
-	PartitionKey string
-	Keyword      string
+	PartitionKey string `json:"partition_key"`
+	Keyword      string `json:"keyword"`
 }
 
 type CollectEventObject struct {
