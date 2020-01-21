@@ -1,4 +1,4 @@
-.PHONY: init-state init-secrets build clean deploy
+.PHONY: init build clean deploy
 
 build:
 	go mod download
@@ -7,21 +7,11 @@ build:
 clean:
 	rm -rf ./bin
 
-deploy: build
+deploy:
 	sed -e 's/__SERVERLESS_USER__/'${SERVERLESS_USER}'/g' < serverless-template.yml > serverless.yml
 	sls deploy --verbose
 
-init: init-state init-secrets init-stream
-
-init-state:
-	aws s3 ls s3://${TWITTER_STATE_BUCKET}/ >/dev/null 2>/dev/null ; \
-	if [ $$? -eq 255 ]; then \
-	  aws s3 mb s3://${TWITTER_STATE_BUCKET}/ ; \
-	  aws s3api put-bucket-tagging --bucket ${TWITTER_STATE_BUCKET} --tagging 'TagSet=[{Key=project,Value=sls-demo-'${SERVERLESS_USER}'},{Key=owner,Value='${SERVERLESS_USER}'}]' ; \
-	fi
-	aws s3 cp TwitterState.json s3://${TWITTER_STATE_BUCKET}/
-
-init-secrets:
+init:
 	aws secretsmanager get-secret-value --secret-id sls-demo-${SERVERLESS_USER}/twitter/access-token >/dev/null 2>/dev/null ; \
 	if [ $$? -eq 255 ]; then \
 		aws secretsmanager create-secret --name sls-demo-${SERVERLESS_USER}/twitter/access-token --secret-string ${TWITTER_ACCESS_TOKEN} ; \
@@ -39,9 +29,3 @@ init-secrets:
 		aws secretsmanager create-secret --name sls-demo-${SERVERLESS_USER}/twitter/consumer-secret --secret-string ${TWITTER_CONSUMER_SECRET} ; \
 	fi
 
-init-stream:
-	aws kinesis describe-stream --stream-name ${AWS_EVENT_STREAM_NAME_POLL_TWEET} >/dev/null 2>/dev/null ; \
-	if [ $$? -eq 255 ]; then \
-		aws kinesis create-stream --stream-name ${AWS_EVENT_STREAM_NAME_POLL_TWEET} --shard-count 1 ; \
-		aws kinesis add-tags-to-stream --stream-name ${AWS_EVENT_STREAM_NAME_POLL_TWEET} --tags project=sls-demo-${SERVERLESS_USER},owner=${SERVERLESS_USER}
-	fi

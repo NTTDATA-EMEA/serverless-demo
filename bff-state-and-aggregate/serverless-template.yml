@@ -1,0 +1,53 @@
+service: bff-state-and-aggregate-__SERVERLESS_USER__
+
+frameworkVersion: '>=1.28.0 <2.0.0'
+
+provider:
+  name: aws
+  runtime: go1.x
+  memorySize: 128
+  stage: ${env:SERVERLESS_STAGE}
+  region: ${env:AWS_REGION}
+  stackTags:
+    project: sls-demo-__SERVERLESS_USER__
+    owner: __SERVERLESS_USER__
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
+  environment:
+    SERVERLESS_USER: ${env:SERVERLESS_USER}
+    SERVERLESS_STAGE: ${env:SERVERLESS_STAGE}
+
+package:
+  exclude:
+    - ./**
+  include:
+    - ./bin/**
+
+functions:
+  agg-readall-api:
+    handler: bin/agg-readall-api
+    events:
+      - http:
+          path: aggregate
+          method: get
+  agg-read-api:
+    handler: bin/agg-read-api
+    events:
+      - http:
+          path: aggregate/{id}
+          method: get
+  state-read-api:
+    handler: bin/state-read-update-api
+    events:
+      - http:
+          path: state
+          method: get
+  state-update-api:
+    handler: bin/state-read-update-api
+    events:
+      - http:
+          path: state
+          method: put

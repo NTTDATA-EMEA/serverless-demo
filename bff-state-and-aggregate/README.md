@@ -1,12 +1,12 @@
-# Persist Aggregates
+# BFF State and Aggregate
 
-Defines three lambda functions to persist and read aggregates for buzzwords.
+Defines four lambda functions as BFF (backend for frontend) for a UI client.
 
 ## Function Overview 
 
-### Read Function
+### API Read Aggregate Function
 
-Reads an aggregate from the DynamoDB based on the provided buzzword.
+Reads an aggregate using `persist-aggregates` module based on the provided buzzword.
 
 Aggregate example for `#tesla`:
 
@@ -42,14 +42,29 @@ Aggregate example for `#tesla`:
 }
 ``` 
 
-### ReadAll Function
+### API ReadAll Aggregates Function
 
-Reads all aggregates from the DynamoDB.
+Reads all aggregates using `persist-aggregates` module.
 It is a test function an should be used with caution due to potentially huge payload to transfer.
 
-### Persist Function
+### API Read State Function
 
-Persists an aggregate event from the Kinesis stream in DynamoDB.
+Reads the state using `poll-tweet-state` module. 
+
+State example:
+```(json)
+{
+    "#ai": 1219303578273288194,
+    "#cloud": 1219303590080077824,
+    "#iot": 1219303590080077824,
+    "#startups": 1219243463201513473,
+    "#tesla": 1219097834739257344
+}
+```
+
+### Update Function
+
+Updates the state using `poll-tweet-state` module.
 
 ## Build and Deploy
 
@@ -73,4 +88,4 @@ Use Makefile to deploy executables to AWS with help of the following command:
 ```
 $ make deploy
 ```
-After successful deployment you will find three lambda functions `read`, `readall` and `persist` in your AWS dashboard.
+After successful deployment you will find four lambda functions in your AWS dashboard.

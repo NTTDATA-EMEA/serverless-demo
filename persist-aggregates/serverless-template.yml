@@ -8,7 +8,7 @@ provider:
   memorySize: 128
   stage: ${env:SERVERLESS_STAGE}
   region: ${env:AWS_REGION}
-  tags:
+  stackTags:
     project: sls-demo-__SERVERLESS_USER__
     owner: __SERVERLESS_USER__
   iamRoleStatements:
@@ -19,9 +19,14 @@ provider:
         - kinesis:GetRecords
         - kinesis:GetShardIterator
       Resource: ${env:AWS_EVENT_STREAM_ARN_COLLECT_BUZZWORDS}
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   environment:
     SERVERLESS_USER: ${env:SERVERLESS_USER}
     BUZZWORD_AGGREGATES_TABLE: ${env:BUZZWORD_AGGREGATES_TABLE}
+    SERVERLESS_STAGE: ${env:SERVERLESS_STAGE}
 
 package:
   exclude:
@@ -30,7 +35,7 @@ package:
     - ./bin/**
 
 functions:
-  persist-__SERVERLESS_USER__:
+  persist:
     handler: bin/persist
     events:
       - stream:
@@ -39,22 +44,10 @@ functions:
           batchSize: 10
           startingPosition: TRIM_HORIZON
           enabled: true
-  readall-__SERVERLESS_USER__:
+  readall:
     handler: bin/readall
-    events:
-      - http:
-          path: aggregate
-          method: get
-  read-__SERVERLESS_USER__:
+  read:
     handler: bin/read
-    events:
-      - http:
-          path: aggregate/{id}
-          method: get
-          request:
-            parameter:
-              paths:
-                name: true
 
 resources:
   Resources:
@@ -89,7 +82,7 @@ resources:
                 - dynamodb:PutItem
                 - dynamodb:Query
                 - dynamodb:Scan
-              Resource: arn:aws:dynamodb:eu-central-1:${env:AWS_ACCOUNT_ID}:table/${env:BUZZWORD_AGGREGATES_TABLE}
+              Resource: arn:aws:dynamodb:${env:AWS_REGION}:${env:AWS_ACCOUNT_ID}:table/${env:BUZZWORD_AGGREGATES_TABLE}
         Roles:
           - Ref: IamRoleLambdaExecution
 

@@ -8,7 +8,7 @@ provider:
   memorySize: 128
   stage: ${env:SERVERLESS_STAGE}
   region: ${env:AWS_REGION}
-  tags:
+  stackTags:
     project: sls-demo-__SERVERLESS_USER__
     owner: __SERVERLESS_USER__
   iamRoleStatements:
@@ -17,6 +17,10 @@ provider:
         - s3:PutObject
         - s3:GetObject
       Resource: "arn:aws:s3:::${env:TWITTER_STATE_BUCKET}/*"
+    - Effect: Allow
+      Action:
+        - lambda:InvokeFunction
+      Resource: "*"
   environment:
     SERVERLESS_USER: ${env:SERVERLESS_USER}
     TWITTER_STATE_BUCKET: ${env:TWITTER_STATE_BUCKET}
@@ -31,24 +35,10 @@ package:
    - ./bin/**
 
 functions:
-  read-__SERVERLESS_USER__:
+  read:
     handler: bin/read
-    events:
-      - http:
-          path: state
-          method: get
-  update-__SERVERLESS_USER__:
+  update:
     handler: bin/update
-    events:
-      - http:
-          path: state
-          method: put
-  delete-__SERVERLESS_USER__:
-    handler: bin/delete
-    events:
-      - http:
-          path: state
-          method: delete
 
 resources:
   Resources:
@@ -83,7 +73,7 @@ resources:
                 - dynamodb:PutItem
                 - dynamodb:Query
                 - dynamodb:Scan
-              Resource: arn:aws:dynamodb:eu-central-1:${env:AWS_ACCOUNT_ID}:table/${env:TWITTER_STATE_TABLE}
+              Resource: arn:aws:dynamodb:${env:AWS_REGION}:${env:AWS_ACCOUNT_ID}:table/${env:TWITTER_STATE_TABLE}
         Roles:
           - Ref: IamRoleLambdaExecution
 

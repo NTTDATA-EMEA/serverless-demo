@@ -81,7 +81,7 @@ func PublishCollectBuzzwordAggregates(ep services.EventPublisher, cbs map[string
 		}
 		jsn, err := events[i].Marshal()
 		if err != nil {
-			return err
+			return fmt.Errorf("publish-collect-buzzword-aggregates.marshal error: %w", err)
 		}
 		log.WithField("buzzword", fmt.Sprintf("%s", jsn)).Info("Marshalled Collect Event...")
 		i++
@@ -91,7 +91,7 @@ func PublishCollectBuzzwordAggregates(ep services.EventPublisher, cbs map[string
 		ejsn[i] = &events[i]
 	}
 	if err := ep.PublishEvents(ejsn); err != nil {
-		return err
+		return fmt.Errorf("publish-collect-buzzword-aggregates.publish-events error: %w", err)
 	}
 	log.Info("PublishBuzzwordAggregates finished...")
 	return nil
