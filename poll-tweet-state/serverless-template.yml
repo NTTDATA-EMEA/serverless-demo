@@ -73,7 +73,7 @@ resources:
                 - dynamodb:PutItem
                 - dynamodb:Query
                 - dynamodb:Scan
-              Resource: arn:aws:dynamodb:eu-central-1:${env:AWS_ACCOUNT_ID}:table/${env:TWITTER_STATE_TABLE}
+              Resource: arn:aws:dynamodb:${env:AWS_REGION}:${env:AWS_ACCOUNT_ID}:table/${env:TWITTER_STATE_TABLE}
         Roles:
           - Ref: IamRoleLambdaExecution
 

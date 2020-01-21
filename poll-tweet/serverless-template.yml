@@ -26,6 +26,13 @@ provider:
         - kinesis:PutRecords
         - kinesis:GetShardIterator
       Resource: ${env:AWS_EVENT_STREAM_ARN_POLL_TWEET}
+    - Effect: Allow
+      Action:
+        - dynamodb:GetItem
+        - dynamodb:PutItem
+        - dynamodb:Query
+        - dynamodb:Scan
+      Resource: arn:aws:dynamodb:${env:AWS_REGION}:${env:AWS_ACCOUNT_ID}:table/${env:TWITTER_STATE_TABLE}
 
 package:
  exclude:
@@ -34,7 +41,7 @@ package:
    - ./bin/**
 
 functions:
-  poll-__SERVERLESS_USER__:
+  poll:
     handler: bin/poll
     memorySize: 128
     environment:
@@ -50,4 +57,12 @@ functions:
       TWITTER_STATE_TYPE: ${env:TWITTER_STATE_TYPE}
       TWITTER_STATE_TABLE: ${env:TWITTER_STATE_TABLE}
     events:
-      - schedule: rate(5 minutes)
+      - schedule: rate(1 minute)
+
+resources:
+  Resources:
+    workStream:
+      Type: AWS::Kinesis::Stream
+      Properties:
+        Name: ${env:AWS_EVENT_STREAM_NAME_POLL_TWEET}
+        ShardCount: 1
