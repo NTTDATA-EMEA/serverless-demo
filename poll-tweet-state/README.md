@@ -33,7 +33,7 @@ Updates the state in the DynamoDB.
 ### Environment Setup
 
 To prepare proper serverless configuration there is a need to set some environment variables. 
-Please use `setenv-dev-template.sh` and fill it with proper values as described [here](../README.md).
+Please use [`setenv-dev-template.sh`](../setenv-dev-template.sh) and fill it with proper values as described [here](../README.md).
 
 ### Handler Build
 

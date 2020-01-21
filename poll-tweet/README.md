@@ -42,8 +42,11 @@ export TWITTER_CONSUMER_KEY=#please provide a valid value
 export TWITTER_CONSUMER_SECRET=#please provide a valid value
 ```
 
-This will also setup some secrets with Twitter credentials using this code snippet:
-
+Finally we have to create secrets with help of the following command:
+```(sh)
+$ make init
+```
+which in background runs following commands:
 ```(sh)
 aws secretsmanager create-secret --name sls-demo-$SERVERLESS_USER/twitter/access-token --region $AWS_REGION --secret-string $TWITTER_ACCESS_TOKEN
 aws secretsmanager create-secret --name sls-demo-$SERVERLESS_USER/twitter/access-secret --region $AWS_REGION --secret-string $TWITTER_ACCESS_SECRET
@@ -54,7 +57,7 @@ aws secretsmanager create-secret --name sls-demo-$SERVERLESS_USER/twitter/consum
 ### Handler Build
 
 Use Makefile to build executables with help of the following command:
-```
+```(sh)
 $ make build
 ```
 After successful build you will find one file in the `./bin` directory. 
@@ -62,7 +65,7 @@ After successful build you will find one file in the `./bin` directory.
 ### Handler Deployment
 
 Use Makefile to deploy executables to AWS with help of the following command:
-```
+```(sh)
 $ make deploy
 ```
 After successful deployment you will find one lambda functions in your AWS dashboard 
