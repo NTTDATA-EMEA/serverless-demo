@@ -33,7 +33,8 @@ Updates the state in the DynamoDB.
 ### Environment Setup
 
 To prepare proper serverless configuration there is a need to set some environment variables. 
-Please use [`setenv-dev-template.sh`](../setenv-dev-template.sh) and fill it with proper values as described [here](../README.md).
+Please use [`setenv-dev-template.sh`](../setenv-dev-template.sh) and fill it with proper values 
+and run as described [here](../README.md).
 
 ### Handler Build
 
@@ -49,7 +50,7 @@ Use Makefile to deploy executables to AWS with help of the following command:
 ```
 $ make deploy
 ```
-After successful deployment you will find two lambda functions in your AWS dashboard together with a relevant DynamoDB table.
+After successful deployment you will find two lambda functions `read` and `update` in your AWS dashboard together with a relevant DynamoDB table.
 
 ### Initial Setup
 

@@ -28,7 +28,8 @@ Queries Twitter, creates events and pushes them to the Kinesis stream.
 ### Environment Setup
 
 To prepare proper serverless configuration there is a need to set some environment variables. 
-Please use [`setenv-dev-template.sh`](../setenv-dev-template.sh) and fill it with proper values as described [here](../README.md).
+Please use [`setenv-dev-template.sh`](../setenv-dev-template.sh) and fill it with proper values 
+and run as described [here](../README.md).
 
 ### Twitter APIs
 
@@ -60,7 +61,7 @@ Use Makefile to build executables with help of the following command:
 ```(sh)
 $ make build
 ```
-After successful build you will find one file in the `./bin` directory. 
+After successful build you will find one file `poll` in the `./bin` directory. 
 
 ### Handler Deployment
 
