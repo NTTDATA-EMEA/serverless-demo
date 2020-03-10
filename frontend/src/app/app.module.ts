@@ -6,14 +6,12 @@ import { AppComponent } from './app.component';
 import { HeaderComponent } from './header/header.component';
 import { KeywordsComponent } from './keywords/keywords.component';
 import { HttpClientModule } from '@angular/common/http';
-import { BuzzwordsComponent } from './buzzwords/buzzwords.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     HeaderComponent,
-    KeywordsComponent,
-    BuzzwordsComponent
+    KeywordsComponent
   ],
   imports: [
     BrowserModule,
