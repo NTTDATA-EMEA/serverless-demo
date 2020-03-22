@@ -13,7 +13,9 @@ func ResponseWithJson(body string) (*Response, error) {
 		IsBase64Encoded: false,
 		Body:            body,
 		Headers: map[string]string{
-			"Content-Type": "application/json",
+			"Content-Type":                     "application/json",
+			"Access-Control-Allow-Origin":      "*",
+			"Access-Control-Allow-Credentials": "true",
 		},
 	}, nil
 }
