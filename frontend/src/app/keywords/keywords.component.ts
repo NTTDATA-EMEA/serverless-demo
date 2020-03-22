@@ -1,5 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, OnInit } from '@angular/core';
+import { environment } from "../../environments/environment";
 
 
 @Component({
@@ -9,8 +10,8 @@ import { Component, OnInit } from '@angular/core';
 })
 export class KeywordsComponent implements OnInit {
 
-  private keywordsUrl = '/dev/state';
-  private buzzwordsUrl = '/dev/aggregate';
+  private keywordsUrl = environment.baseApiUrl + '/state';
+  private buzzwordsUrl = environment.baseApiUrl + '/aggregate';
 
   public keywords: string[] = [];
   public buzzwords: string[] = [];
