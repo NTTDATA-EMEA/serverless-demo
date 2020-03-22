@@ -33,21 +33,25 @@ functions:
       - http:
           path: aggregate
           method: get
+          cors: true
   agg-read-api:
     handler: bin/agg-read-api
     events:
       - http:
           path: aggregate/{id}
           method: get
+          cors: true
   state-read-api:
     handler: bin/state-read-update-api
     events:
       - http:
           path: state
           method: get
+          cors: true
   state-update-api:
     handler: bin/state-read-update-api
     events:
       - http:
           path: state
           method: put
+          cors: true
