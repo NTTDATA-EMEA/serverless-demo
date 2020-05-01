@@ -1,8 +1,6 @@
 <section class="section">
   <div class="container">
-
     <div class="columns is-mobile">
-
       <div class="column is-narrow">
         <div class="menu">
           <ul class="menu-list">
@@ -12,17 +10,14 @@
           </ul>
         </div>
       </div>
-
-
       <div class="column">
-        <div class="columns is-multiline">
+        <img *ngIf="isLoading" src="/assets/img/loading.gif" alt="loading" />
+        <div *ngIf="!isLoading" class="columns is-multiline">
           <div class="column is-narrow" *ngFor="let buzzword of buzzwords">
             {{ buzzword }}
           </div>
         </div>
       </div>
-
     </div>
   </div>
-
 </section>
