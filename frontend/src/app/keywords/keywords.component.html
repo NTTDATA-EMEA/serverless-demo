@@ -14,7 +14,7 @@
         <img *ngIf="isLoading" src="/assets/img/loading.gif" alt="loading" />
         <div *ngIf="!isLoading" class="columns is-multiline">
           <div class="column is-narrow" *ngFor="let buzzword of buzzwords">
-            {{ buzzword }}
+            {{ buzzword["buzzword"] }} ({{buzzword["count"]}})
           </div>
         </div>
       </div>

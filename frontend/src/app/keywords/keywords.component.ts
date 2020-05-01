@@ -46,7 +46,9 @@ export class KeywordsComponent implements OnInit {
     this.http.get(this.buzzwordsUrl + '/' + keyword)
       .subscribe({
         next: (k: any) => {
-          this.buzzwords = Object.keys(k.buzzwords);
+          this.buzzwords = Object.keys(k.buzzwords)
+            .map(v => k.buzzwords[v])
+            .sort((a, b) => (a.count > b.count) ? -1 : ((a.count === b.count) ? (a.buzzword.localeCompare(b.buzzword)) : 1));
         },
         error: () => {
           this.buzzwords = [];
