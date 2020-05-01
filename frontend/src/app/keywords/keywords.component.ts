@@ -30,7 +30,7 @@ export class KeywordsComponent implements OnInit {
   ngOnInit(): void {
     this.http.get(this.keywordsUrl).subscribe({
       next: k => {
-        this.keywords = Object.keys(k);
+        this.keywords = Object.keys(k).sort(((a, b) => a.localeCompare(b)));
       },
       complete: () => {
         this.isLoading = false;
