@@ -45,17 +45,21 @@ export class KeywordsComponent implements OnInit {
     this.http.get(this.buzzwordsUrl + '/' + this.selectedKeyword)
       .subscribe({
         next: (k: any) => {
-          switch (this.orderBy) {
-            case "count":
-              this.buzzwords = Object.keys(k.buzzwords)
-                .map(v => k.buzzwords[v])
-                .sort((a, b) => (a.count > b.count) ? -1 : ((a.count === b.count) ? (a.buzzword.localeCompare(b.buzzword)) : 1));
-              break;
-            case "buzzword":
-              this.buzzwords = Object.keys(k.buzzwords)
-                .map(v => k.buzzwords[v])
-                .sort((a, b) => (a.buzzword.localeCompare(b.buzzword)));
-              break;
+          if (k.buzzwords == null) {
+            this.buzzwords = [];
+          } else {
+            switch (this.orderBy) {
+              case "count":
+                this.buzzwords = Object.keys(k.buzzwords)
+                  .map(v => k.buzzwords[v])
+                  .sort((a, b) => (a.count > b.count) ? -1 : ((a.count === b.count) ? (a.buzzword.localeCompare(b.buzzword)) : 1));
+                break;
+              case "buzzword":
+                this.buzzwords = Object.keys(k.buzzwords)
+                  .map(v => k.buzzwords[v])
+                  .sort((a, b) => (a.buzzword.localeCompare(b.buzzword)));
+                break;
+            }
           }
         },
         error: () => {
