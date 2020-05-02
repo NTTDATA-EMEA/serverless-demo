@@ -8,7 +8,15 @@ import (
 
 func Handler(keyword string) (commons.BuzzwordCounts, error) {
 	s := commons.NewAwsDynamoDbAggregateStorer(os.Getenv("SERVERLESS_USER"), 1)
-	return s.GetAggregate("#" + keyword)
+	qkeyword := "#" + keyword
+	r, err := s.GetAggregate(qkeyword)
+	if err != nil {
+		return commons.BuzzwordCounts{}, err
+	}
+	if r.Keyword == "" {
+		r.Keyword = qkeyword
+	}
+	return r, nil
 }
 
 func main() {

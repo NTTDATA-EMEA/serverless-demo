@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/okoeth/serverless-demo/commons/pkg/services"
-	log "github.com/sirupsen/logrus"
+	"log"
 	"strings"
 	"time"
 )
@@ -46,28 +46,30 @@ func CollectBuzzwords(events []PollEvent) map[string]*BuzzwordCounts {
 
 // CollectBuzzwordCounts extracts buzzwords (i.e. hashtags) from tweets and increments counters
 func CollectBuzzwordCounts(tw string, bw string, bc *BuzzwordCounts) {
-	if bw != bc.Keyword {
+	bwtl := strings.ToLower(bw)
+	if bwtl != strings.ToLower(bc.Keyword) {
 		return
 	}
 	words := strings.Fields(tw)
 	for _, word := range words {
-		if strings.HasPrefix(word, "#") && len(word) > 1 && strings.ToLower(word) != strings.ToLower(bw) {
-			if _, ok := bc.Buzzwords[word]; !ok {
-				bc.Buzzwords[word] = &BuzzwordCount{
+		wordtl := strings.ToLower(word)
+		if strings.HasPrefix(wordtl, "#") && len(wordtl) > 1 && wordtl != bwtl {
+			if _, ok := bc.Buzzwords[wordtl]; !ok {
+				bc.Buzzwords[wordtl] = &BuzzwordCount{
 					Keyword:    bc.Keyword,
-					Buzzword:   word,
+					Buzzword:   wordtl,
 					Count:      0,
 					LastUpdate: time.Now(),
 				}
 			}
-			bc.Buzzwords[word].Count++
+			bc.Buzzwords[wordtl].Count++
 		}
 	}
 }
 
 // PublishCollectBuzzwordAggregates publishes events with aggregated values
 func PublishCollectBuzzwordAggregates(ep services.EventPublisher, cbs map[string]*BuzzwordCounts) error {
-	log.Info("PublishBuzzwordAggregates started...")
+	log.Println("PublishBuzzwordAggregates started...")
 	events := make([]CollectEvent, len(cbs))
 	i := 0
 	for k := range cbs {
@@ -83,7 +85,7 @@ func PublishCollectBuzzwordAggregates(ep services.EventPublisher, cbs map[string
 		if err != nil {
 			return fmt.Errorf("publish-collect-buzzword-aggregates.marshal error: %w", err)
 		}
-		log.WithField("buzzword", fmt.Sprintf("%s", jsn)).Info("Marshalled Collect Event...")
+		log.Printf("Marshalled Collect Event: %s", jsn)
 		i++
 	}
 	ejsn := make([]services.EventJsoner, len(events))
@@ -93,6 +95,6 @@ func PublishCollectBuzzwordAggregates(ep services.EventPublisher, cbs map[string
 	if err := ep.PublishEvents(ejsn); err != nil {
 		return fmt.Errorf("publish-collect-buzzword-aggregates.publish-events error: %w", err)
 	}
-	log.Info("PublishBuzzwordAggregates finished...")
+	log.Println("PublishBuzzwordAggregates finished...")
 	return nil
 }
