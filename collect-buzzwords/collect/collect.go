@@ -35,7 +35,7 @@ func CollectBuzzwords(events []PollEvent) map[string]*BuzzwordCounts {
 	b := make(map[string]*BuzzwordCounts)
 	for i := range events {
 		ttx := events[i].Object.TweetText
-		bw := events[i].Subject.Buzzword
+		bw := strings.ToLower(events[i].Subject.Buzzword)
 		if _, ok := b[bw]; !ok {
 			b[bw] = NewBuzzwordCounts(bw)
 		}
@@ -51,18 +51,23 @@ func CollectBuzzwordCounts(tw string, bw string, bc *BuzzwordCounts) {
 		return
 	}
 	words := strings.Fields(tw)
+	r := strings.NewReplacer("'s", "", ".", "", ",", "", ";", "", ":", "", "_", "", "-", "",
+		"—", "", "`", "", "´", "", "—", "", "\\", "", "\"", "", "!", "", "?", "", "'", "", "…", "")
 	for _, word := range words {
-		wordtl := strings.ToLower(word)
-		if strings.HasPrefix(wordtl, "#") && len(wordtl) > 1 && wordtl != bwtl {
-			if _, ok := bc.Buzzwords[wordtl]; !ok {
-				bc.Buzzwords[wordtl] = &BuzzwordCount{
-					Keyword:    bc.Keyword,
-					Buzzword:   wordtl,
-					Count:      0,
-					LastUpdate: time.Now(),
+		if strings.HasPrefix(word, "#") {
+			wordtl := r.Replace(strings.ToLower(word))
+			log.Printf("Cleaned: %s -> %s", word, wordtl)
+			if len(wordtl) > 1 && wordtl != bwtl {
+				if _, ok := bc.Buzzwords[wordtl]; !ok {
+					bc.Buzzwords[wordtl] = &BuzzwordCount{
+						Keyword:    bc.Keyword,
+						Buzzword:   wordtl,
+						Count:      0,
+						LastUpdate: time.Now(),
+					}
 				}
+				bc.Buzzwords[wordtl].Count++
 			}
-			bc.Buzzwords[wordtl].Count++
 		}
 	}
 }
