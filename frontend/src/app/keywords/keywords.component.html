@@ -1,0 +1,41 @@
+<section class="section">
+  <div class="container">
+    <div class="columns is-mobile">
+      <div class="column is-narrow">
+        <div>
+          Buzzwords
+        </div>
+        <div class="menu">
+          <ul class="menu-list">
+            <li *ngFor="let keyword of keywords">
+              <a (click)="showBuzzwords(keyword)" class="{{ keyword === ('#' + selectedKeyword) ? 'is-active' : '' }}">{{ keyword }}</a>
+            </li>
+          </ul>
+        </div>
+        <br>
+        <div>
+          Sort by
+        </div>
+        <div>
+          <input id="byCount" type="radio" [(ngModel)]="orderBy" value="count" (click)="showBuzzwords()">
+          <label for="byCount"> count</label>
+        </div>
+        <div>
+          <input id="byBuzzword" type="radio" [(ngModel)]="orderBy" value="buzzword" (click)="showBuzzwords()">
+          <label for="byBuzzword"> buzzword</label>
+        </div>
+      </div>
+      <div class="column">
+        <img *ngIf="isLoading" src="/assets/img/loading.gif" alt="loading" />
+        <div *ngIf="!isLoading && selectedKeyword && buzzwords?.length == 0">
+          No records found for #{{ selectedKeyword }}
+        </div>
+        <div *ngIf="!isLoading && buzzwords?.length > 0" class="columns is-multiline">
+          <div class="column is-narrow" *ngFor="let buzzword of buzzwords">
+            {{ buzzword["buzzword"] }} ({{ buzzword["count"] }})
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
