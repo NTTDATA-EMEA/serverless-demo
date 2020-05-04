@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 	"github.com/okoeth/serverless-demo/commons/pkg/services"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -50,7 +51,6 @@ func (as AwsDynamoDbAggregateStorer) GetAggregate(buzzword string) (BuzzwordCoun
 	}
 	item := AwsDynamoDbAggregateItem{}
 	err = dynamodbattribute.UnmarshalMap(result.Item, &item)
-	fmt.Printf("Loaded from DB and unmarshalled: %+v", item)
 	if err != nil {
 		return empty, fmt.Errorf("GetAggregate.UnmarshalMap()>%w", err)
 	}
@@ -73,7 +73,6 @@ func (as AwsDynamoDbAggregateStorer) GetAllAggregates() ([]BuzzwordCounts, error
 	for i := range result.Items {
 		item := AwsDynamoDbAggregateItem{}
 		err = dynamodbattribute.UnmarshalMap(result.Items[i], &item)
-		fmt.Printf("Loaded from DB and unmarshalled: %+v", item)
 		if err != nil {
 			return nil, fmt.Errorf("GetAllAggregates.UnmarshalMap()>%w", err)
 		}
@@ -85,12 +84,14 @@ func (as AwsDynamoDbAggregateStorer) GetAllAggregates() ([]BuzzwordCounts, error
 // UpdateOrSetAggregate updates the aggregate with new counts or buzzwords
 // or creates new aggregate
 func (as AwsDynamoDbAggregateStorer) UpdateOrSetAggregate(ag BuzzwordCounts) error {
+	log.Printf("UpdateOrSetAggregate: keyword: %s, namespace: %s", ag.Keyword, as.Namespace)
 	item := AwsDynamoDbAggregateItem{
 		BuzzwordNamespace: ag.Keyword + as.Namespace,
 		Version:           as.Version,
 		Aggregate:         ag,
 	}
 	load, err := as.GetAggregate(ag.Keyword)
+	log.Printf("GetAggregate: load: %v", load)
 	if err != nil {
 		return fmt.Errorf("UpdateOrSetAggregate.GetAggregate()>%w", err)
 	}
@@ -108,6 +109,7 @@ func (as AwsDynamoDbAggregateStorer) UpdateOrSetAggregate(ag BuzzwordCounts) err
 	if err != nil {
 		return fmt.Errorf("UpdateOrSetAggregate.NewDynamoDbService()>%w", err)
 	}
+	log.Printf("Item to put in table %s: %v", as.TableName, item)
 	_, err = svc.PutItem(&dynamodb.PutItemInput{
 		TableName: aws.String(as.TableName),
 		Item:      av,

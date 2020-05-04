@@ -15,7 +15,7 @@ import (
 )
 
 // SearchResultCount controls the batch size of the search results
-var SearchResultCount = 100
+var SearchResultCount = 200
 
 // TwitterTimeLayout is the format Twitter uses for CreatedAt
 var TwitterTimeLayout = "Mon Jan 2 15:04:05 -0700 2006"

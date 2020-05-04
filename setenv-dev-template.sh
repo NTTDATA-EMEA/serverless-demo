@@ -2,7 +2,7 @@
 export SERVERLESS_STAGE=#please provide a valid value
 export SERVERLESS_USER=#please provide a valid value
 export AWS_REGION=#please provide a valid value
-export AWS_PROFILE=sls-demo-${SERVERLESS_USER}-dev
+export AWS_PROFILE=sls-demo-${SERVERLESS_USER}-${SERVERLESS_STAGE}
 export AWS_ACCOUNT_ID=#please provide a valid value
 export AWS_EVENT_STREAM_NAME_POLL_TWEET=events-poll-tweet-${SERVERLESS_USER}-${SERVERLESS_STAGE}
 export AWS_EVENT_STREAM_NAME_COLLECT_BUZZWORDS=events-collect-buzzwords-${SERVERLESS_USER}-${SERVERLESS_STAGE}

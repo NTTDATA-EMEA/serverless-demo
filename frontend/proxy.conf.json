@@ -1,0 +1,8 @@
+{
+  "/": {
+    "target": "https://kccrwceyaj.execute-api.eu-central-1.amazonaws.com",
+    "secure": false,
+    "changeOrigin": true,
+    "logLevel": "debug"
+  }
+}
