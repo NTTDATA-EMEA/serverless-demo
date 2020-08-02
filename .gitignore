@@ -164,7 +164,7 @@ $RECYCLE.BIN/
 *.lnk
 
 # End of https://www.gitignore.io/api/go,macos,windows,intellij+all
-/setenv-dev.sh
+/setenv-*.sh
 */setenv-twitter.sh
 node_modules/
 package-lock.json
