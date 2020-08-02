@@ -11,7 +11,7 @@ deploy:
 	sed -e 's/__SERVERLESS_USER__/'${SERVERLESS_USER}'/g' < serverless-template.yml > serverless.yml
 	sls deploy --verbose
 
-init:
+secrets:
 	aws secretsmanager get-secret-value --secret-id sls-demo-${SERVERLESS_USER}/twitter/access-token >/dev/null 2>/dev/null ; \
 	if [ $$? -eq 255 ]; then \
 		aws secretsmanager create-secret --name sls-demo-${SERVERLESS_USER}/twitter/access-token --secret-string ${TWITTER_ACCESS_TOKEN} ; \
